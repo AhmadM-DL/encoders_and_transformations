@@ -34,13 +34,15 @@ def _pool_features(features, target_size):
 
 def get_features(encoder, X, features_size, device="cuda"):
     X = X.to(device)
+    batch_size = X.shape[0]
     is_clip = type(encoder).__name__ == "CLIPModel"
     with no_grad():
         if is_clip:
           features = encoder.get_image_features(X)
         else:
           outputs = encoder(X)
-          features = outputs.pooler_output.squeeze()
+          features = outputs.pooler_output
+          features = features.view(batch_size, -1)
     features = _pool_features(features, features_size)
     return features
 
