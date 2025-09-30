@@ -4,91 +4,106 @@
             "id": "microsoft/resnet-50",
             "type": "CNN",
             "input_size": 224,
-            "params": "25.6M" //checked
+            "params": "25.6M",
+            "note": "checked"
         },
         {
             "id": "google/efficientnet-b0",
             "type": "CNN",
             "input_size": 224,
-            "params": "5.3M" //checked
+            "params": "5.3M",
+            "note": "checked"
         },
         {
             "id": "facebook/convnext-base-224",
             "type": "CNN",
             "input_size": 224,
-            "params": "89M" //checked
+            "params": "89M",
+            "note": "checked"
         },
         {
             "id": "google/vit-base-patch16-224-in21k",
             "type": "Transformer",
             "input_size": 224,
-            "params": "86.4M" //checked
+            "params": "86.4M",
+            "note": "checked"
         },
         {
             "id": "facebook/deit-base-distilled-patch16-224",
             "type": "Transformer",
             "input_size": 224,
-            "params": "86M" //checked
+            "params": "86M",
+            "note": "checked"
         },
         {
             "id": "microsoft/swin-base-patch4-window7-224",
             "type": "Transformer",
             "input_size": 224,
-            "params": "87.8M" //checked
+            "params": "87.8M",
+            "note": "checked"
         },
         {
             "id": "nyu-visionx/moco-v3-vit-b",
             "type": "SSL",
             "input_size": 224,
-            "params": "86.6M" //checked+old
+            "params": "86.6M",
+            "note": "checked + old"
         },
         {
             "id": "facebookresearch/byol-resnet50",
             "type": "SSL",
             "input_size": 224,
-            "params": "25.6M" //checked+special+old
+            "params": "25.6M",
+            "note": "checked + special + old"
         },
         {
             "id": "facebook/dinov2-base",
             "type": "SSL",
             "input_size": 224,
-            "params": "86.6M" //checked
+            "params": "86.6M",
+            "note": "checked"
         },
         {
             "id": "google/simclr-resnet-50",
             "type": "SSL",
             "input_size": 224,
-            "params": "25.6M" //checked+special+old
+            "params": "25.6M",
+            "note": "checked + special + old"
         },
         {
             "id": "openai/clip-vit-base-patch32",
             "type": "Foundation",
             "input_size": 224,
-            "params": "88M" //checked
+            "params": "88M",
+            "note": "checked"
         },
         {
             "id": "openai/clip-vit-large-patch14",
             "type": "Foundation",
             "input_size": 224,
-            "params": "428M" //checked
+            "params": "428M",
+            "note": "checked"
         },
         {
             "id": "facebook/vit-mae-base",
             "type": "Specialized",
             "input_size": 224,
-            "params": "112M" //checked
+            "params": "112M",
+            "note": "checked"
         },
         {
             "id": "intel-isl/MiDaS",
             "type": "Specialized",
             "input_size": 384,
-            "params": "105M" // multiple
+            "params": "105M",
+            "note": "multiple"
         },
         {
             "id": "openai/unet",
             "type": "Specialized",
             "input_size": 256,
-            "params": "UNet variant (~50M-100M depending on config)" // need research
+            "params": "UNet variant (~50M-100M depending on config)",
+            "note": "multiple"
         }
     ]
 }
