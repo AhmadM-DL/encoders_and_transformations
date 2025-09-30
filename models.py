@@ -41,7 +41,7 @@ def get_features(encoder, X, features_size, device="cuda"):
         else:
           outputs = encoder(X)
           features = outputs.pooler_output.squeeze()
-    features = _pool_features(features, target_dim=features_size)
+    features = _pool_features(features, features_size)
     return features
 
 if __name__=="main":
