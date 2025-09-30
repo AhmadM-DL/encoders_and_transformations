@@ -1,0 +1,94 @@
+{
+    "encoders": [
+        {
+            "id": "microsoft/resnet-50",
+            "type": "CNN",
+            "input_size": 224,
+            "params": "25.6M" //checked
+        },
+        {
+            "id": "google/efficientnet-b0",
+            "type": "CNN",
+            "input_size": 224,
+            "params": "5.3M" //checked
+        },
+        {
+            "id": "facebook/convnext-base-224",
+            "type": "CNN",
+            "input_size": 224,
+            "params": "89M" //checked
+        },
+        {
+            "id": "google/vit-base-patch16-224-in21k",
+            "type": "Transformer",
+            "input_size": 224,
+            "params": "86.4M" //checked
+        },
+        {
+            "id": "facebook/deit-base-distilled-patch16-224",
+            "type": "Transformer",
+            "input_size": 224,
+            "params": "86M" //checked
+        },
+        {
+            "id": "microsoft/swin-base-patch4-window7-224",
+            "type": "Transformer",
+            "input_size": 224,
+            "params": "87.8M" //checked
+        },
+        {
+            "id": "nyu-visionx/moco-v3-vit-b",
+            "type": "SSL",
+            "input_size": 224,
+            "params": "86.6M" //checked+old
+        },
+        {
+            "id": "facebookresearch/byol-resnet50",
+            "type": "SSL",
+            "input_size": 224,
+            "params": "25.6M" //checked+special+old
+        },
+        {
+            "id": "facebook/dinov2-base",
+            "type": "SSL",
+            "input_size": 224,
+            "params": "86.6M" //checked
+        },
+        {
+            "id": "google/simclr-resnet-50",
+            "type": "SSL",
+            "input_size": 224,
+            "params": "25.6M" //checked+special+old
+        },
+        {
+            "id": "openai/clip-vit-base-patch32",
+            "type": "Foundation",
+            "input_size": 224,
+            "params": "88M" //checked
+        },
+        {
+            "id": "openai/clip-vit-large-patch14",
+            "type": "Foundation",
+            "input_size": 224,
+            "params": "428M" //checked
+        },
+        {
+            "id": "facebook/vit-mae-base",
+            "type": "Specialized",
+            "input_size": 224,
+            "params": "112M" //checked
+        },
+        {
+            "id": "intel-isl/MiDaS",
+            "type": "Specialized",
+            "input_size": 384,
+            "params": "105M" // multiple
+        },
+        {
+            "id": "openai/unet",
+            "type": "Specialized",
+            "input_size": 256,
+            "params": "UNet variant (~50M-100M depending on config)" // need research
+        }
+    ]
+}
