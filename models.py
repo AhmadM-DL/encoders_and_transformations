@@ -52,6 +52,6 @@ def _test_encoder(encoder_id):
     batch_size = 32
     X = torch.rand((batch_size, 3, 224, 224)).to("cuda")
     encoder, img_processor = get_encoder(encoder_id)
-    X = img_processor(X)
+    X = img_processor(X, return_tensors="pt")
     features = get_features(encoder, X, 512)
     assert features.shape == (batch_size, 512)
