@@ -16,17 +16,11 @@ def get_encoder(encoder_id, device="cuda"):
             checkpoint_url = "https://dl.fbaipublicfiles.com/moco-v3/vit-b-300ep/vit-b-300ep.pth.tar"
             checkpoint = torch.hub.load_state_dict_from_url(checkpoint_url, progress=True)
             state_dict = checkpoint["state_dict"]
-            # Drop head and momnetum encoder
+            # Keep only base encoder(without head) and remove everything else (momentum, predictor)
             for k in list(state_dict.keys()):
-                if k.startswith('module.base_encoder.head'):
-                    del state_dict[k]
-                    continue
-                if k.startswith('module.momentum_encoder'):
-                    del state_dict[k]
-                    continue
-                if k.startswith('module.base_encoder'):
+                if k.startswith('module.base_encoder') and not k.startwith('module.base_encoder.head'):
                     state_dict[k.replace("module.base_encoder.", "")] = state_dict[k]
-                    del state_dict[k]
+                del state_dict[k]
             model = timm.create_model('vit_base_patch16_224', pretrained=False)
             msg = model.load_state_dict(state_dict)
             assert set(msg.missing_keys) == {"head.weight", "head.bias"}
