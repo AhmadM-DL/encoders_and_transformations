@@ -46,7 +46,7 @@ def get_features(encoder, X, device="cuda"):
     X = X.to(device)
     batch_size = X.shape[0]
     is_clip = type(encoder).__name__ == "CLIPModel"
-    is_timm = "timm" in type(encoder)
+    is_timm = "timm" in str(type(encoder))
 
     with no_grad():
         if is_clip:
