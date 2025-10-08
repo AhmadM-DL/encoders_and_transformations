@@ -15,9 +15,13 @@ def get_encoder(encoder_id, device="cuda"):
         if "moco" in encoder_id.lower():
             checkpoint_url = "https://dl.fbaipublicfiles.com/moco-v3/vit-b-300ep/vit-b-300ep.pth.tar"
             checkpoint = torch.hub.load_state_dict_from_url(checkpoint_url, progress=True)
-            state_dict = checkpoint["state_dict"]["base_encoder"]
+            state_dict = checkpoint["state_dict"]
+            # Drop head and momnetum encoder
             for k in list(state_dict.keys()):
                 if k.startswith('module.base_encoder.head'):
+                    del state_dict[k]
+                    continue
+                if k.startswith('module.momentum_encoder'):
                     del state_dict[k]
                     continue
                 if k.startswith('module.base_encoder'):
