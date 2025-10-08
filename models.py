@@ -58,10 +58,10 @@ def pool_features(features, to_dimensionality):
 
 def get_features(encoder, X, target_dim, device="cuda"):
     X = X.to(device)
-    batch_size = X.shape[0]
     
     with no_grad():
         
+        # Clip
         if "clip" in str(type(encoder)):
           outputs = encoder.vision_model(X)
           features = outputs.last_hidden_layer[:, 0, :]
@@ -71,7 +71,8 @@ def get_features(encoder, X, target_dim, device="cuda"):
             outputs = encoder(X)
             features = pool_features(outputs, target_dim)
         
-        elif "resnet" in str(type(encoder)):
+        # Convolutional models
+        elif "resnet" in str(type(encoder)) or "efficientnet" in str(type(encoder)):
             outputs = encoder(X)
             features = outputs.pooler_output
             features = features.squeeze()
