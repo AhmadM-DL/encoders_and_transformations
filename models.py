@@ -45,19 +45,19 @@ def get_encoder(encoder_id, device="cuda"):
 def get_features(encoder, X, device="cuda"):
     X = X.to(device)
     batch_size = X.shape[0]
-    is_clip = type(encoder).__name__ == "CLIPModel"
-    is_timm = "timm" in str(type(encoder))
-
+    
     with no_grad():
-        if is_clip:
+        if "clip" in str(type(encoder)):
           features = encoder.get_image_features(X)
-        elif is_timm:
+        elif "timm" in str(type(encoder)):
             features = encoder(X)
+        elif "resnet" in str(type(encoder)):
+            outputs = encoder(X)
+            features = outputs.hidden_layers[-1]
         else:
           outputs = encoder(X)
           features = outputs.last_hidden_layer
           features = features[:, 0, :]
-          features = features.view(batch_size, -1)
     return features
 
 def _test_encoder(encoder_id):
