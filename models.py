@@ -46,12 +46,17 @@ def get_features(encoder, X, device="cuda"):
     X = X.to(device)
     batch_size = X.shape[0]
     is_clip = type(encoder).__name__ == "CLIPModel"
+    is_timm = "timm" in type(encoder)
+
     with no_grad():
         if is_clip:
           features = encoder.get_image_features(X)
+        elif is_timm:
+            features = encoder(X)
         else:
           outputs = encoder(X)
-          features = outputs.pooler_output
+          features = outputs.last_hidden_layer
+          features = features[:, 0, :]
           features = features.view(batch_size, -1)
     return features
 
