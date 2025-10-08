@@ -19,14 +19,12 @@ def get_encoder(encoder_id, device="cuda"):
             for k in list(state_dict.keys()):
                 if k.startswith('module.base_encoder'):
                     state_dict[k.replace("module.base_encoder.", "")] = state_dict[k]
-                del state_dict[k]
+                    del state_dict[k]
+                if k.startswith('module.base_encoder.head'):
+                    del state_dict[k]
             model = timm.create_model('vit_base_patch16_224', pretrained=False)
-            if hasattr(model, 'head'):
-                model.head = torch.nn.Identity()
-            elif hasattr(model, 'fc'):
-                model.fc = torch.nn.Identity()
             msg = model.load_state_dict(state_dict)
-            assert set(msg.missing_keys) == {"%s.weight" % 'head', "%s.bias" % 'head'}
+            assert set(msg.missing_keys) == {"head.weight", "head.bias"}
             model.to(device)
             encoder = model
             image_processor = ViTImageProcessor()
