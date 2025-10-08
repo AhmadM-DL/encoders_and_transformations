@@ -66,3 +66,4 @@ def _test_encoder(encoder_id):
     encoder, img_processor = get_encoder(encoder_id)
     X = img_processor(X, return_tensors="pt")["pixel_values"]
     features = get_features(encoder, X)
+    assert features.shape == (batch_size, 768)
