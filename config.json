@@ -65,6 +65,14 @@
             "note": "checked + special + old"
         },
         {
+            "id": "facebook/vit-mae-base",
+            "type": "SSL",
+            "input_size": 224,
+            "params": "112M",
+            "test": "success", 
+            "note": "checked"
+        },
+        {
             "id": "facebook/dinov2-base",
             "type": "SSL",
             "input_size": 224,

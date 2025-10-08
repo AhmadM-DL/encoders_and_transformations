@@ -67,6 +67,7 @@ def get_features(encoder, X, target_dim, device="cuda"):
           features = outputs.last_hidden_state[:, 0, :]
           features = pool_features(features, target_dim)
 
+        # Models loaded using timm
         elif "timm" in str(type(encoder)):
             outputs = encoder(X)
             features = pool_features(outputs, target_dim)
@@ -78,7 +79,14 @@ def get_features(encoder, X, target_dim, device="cuda"):
             features = features.squeeze()
             features = pool_features(features, target_dim)
 
-        # Transformer models
+        # MAE model have no cls token [AVG]
+        elif "mae" in str(type(encoder)):
+            outputs = encoder(X)
+            features = outputs.last_hidden_state
+            features = features.mean(dim=1)
+            features = pool_features(features, target_dim)
+        
+        # Other transformer models [CLS]
         else:
             outputs = encoder(X)
             features = outputs.last_hidden_state
