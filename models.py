@@ -51,7 +51,6 @@ def pool_features(features, to_dimensionality):
     if current_dim == to_dimensionality:
         return features
     
-    features = features.view(batch_size, current_dim, 1)
     pooled_features = adaptive_avg_pool1d(features, to_dimensionality)
     pooled_features = pooled_features.view(batch_size, to_dimensionality)
     return pooled_features
