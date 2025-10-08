@@ -41,23 +41,47 @@ def get_encoder(encoder_id, device="cuda"):
 
     return encoder, image_processor
 
+def pool_features(features, to_dimensionality):
+    batch_size = features.shape[0]
+    current_dim = features.shape[1]
 
-def get_features(encoder, X, device="cuda"):
+    if current_dim < to_dimensionality:
+        raise Exception(f"Error: Model output dim {current_dim} is less than target dim {to_dimensionality}")
+    
+    if current_dim == to_dimensionality:
+        return features
+    
+    features = features.view(batch_size, current_dim, 1)
+    pooled_features = adaptive_avg_pool1d(features, to_dimensionality)
+    pooled_features = pooled_features.view(batch_size, to_dimensionality)
+    return pooled_features
+
+
+def get_features(encoder, X, target_dim, device="cuda"):
     X = X.to(device)
     batch_size = X.shape[0]
     
     with no_grad():
+        
         if "clip" in str(type(encoder)):
-          features = encoder.get_image_features(X)
+          outputs = encoder.vision_model(X)
+          features = outputs.last_hidden_layer[:, 0, :]
+          features = pool_features(features, target_dim)
+
         elif "timm" in str(type(encoder)):
-            features = encoder(X)
+            outputs = encoder(X)
+            features = pool_features(outputs, target_dim)
+        
         elif "resnet" in str(type(encoder)):
             outputs = encoder(X)
-            features = outputs.hidden_states[-1]
+            features = outputs.pooler_output
+            features = features.squeeze()
+            features = pool_features(outputs, target_dim)
+
         else:
-          outputs = encoder(X)
-          features = outputs.last_hidden_layer
-          features = features[:, 0, :]
+            outputs = encoder(X)
+            features = outputs.last_hidden_layer
+            features = features[:, 0, :]
     return features
 
 def _test_encoder(encoder_id):
@@ -65,5 +89,6 @@ def _test_encoder(encoder_id):
     X = torch.rand((batch_size, 3, 224, 224)).to("cuda")
     encoder, img_processor = get_encoder(encoder_id)
     X = img_processor(X, return_tensors="pt")["pixel_values"]
-    features = get_features(encoder, X)
-    assert features.shape == (batch_size, 768)
+    target_dim = 768
+    features = get_features(encoder, X, target_dim=target_dim)
+    assert features.shape == (batch_size, target_dim)
