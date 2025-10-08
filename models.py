@@ -72,7 +72,7 @@ def get_features(encoder, X, target_dim, device="cuda"):
             features = pool_features(outputs, target_dim)
         
         # Convolutional models
-        elif "resnet" in str(type(encoder)) or "efficientnet" in str(type(encoder)):
+        elif "resnet" in str(type(encoder)) or "efficientnet" in str(type(encoder)) or "convnext" in str(type(encoder)):
             outputs = encoder(X)
             features = outputs.pooler_output
             features = features.squeeze()
