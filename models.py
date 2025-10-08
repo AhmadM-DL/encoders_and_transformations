@@ -18,7 +18,7 @@ def get_encoder(encoder_id, device="cuda"):
             state_dict = checkpoint["state_dict"]
             # Keep only base encoder(without head) and remove everything else (momentum, predictor)
             for k in list(state_dict.keys()):
-                if k.startswith('module.base_encoder') and not k.startwith('module.base_encoder.head'):
+                if k.startswith('module.base_encoder') and not k.startswith('module.base_encoder.head'):
                     state_dict[k.replace("module.base_encoder.", "")] = state_dict[k]
                 del state_dict[k]
             model = timm.create_model('vit_base_patch16_224', pretrained=False)
