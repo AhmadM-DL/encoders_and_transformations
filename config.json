@@ -53,7 +53,7 @@
             "type": "SSL",
             "input_size": 224,
             "params": "86.6M",
-            "test": "skip", 
+            "test": "", 
             "note": "checked + old"
         },
         {
