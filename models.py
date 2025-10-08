@@ -25,7 +25,8 @@ def get_encoder(encoder_id, device="cuda"):
                 model.head = torch.nn.Identity()
             elif hasattr(model, 'fc'):
                 model.fc = torch.nn.Identity()
-            model.load_state_dict(checkpoint["state_dict"])
+            msg = model.load_state_dict(state_dict)
+            assert set(msg.missing_keys) == {"%s.weight" % 'head', "%s.bias" % 'head'}
             model.to(device)
             encoder = model
             image_processor = ViTImageProcessor()
