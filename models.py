@@ -15,6 +15,11 @@ def get_encoder(encoder_id, device="cuda"):
         if "moco" in encoder_id.lower():
             checkpoint_url = "https://dl.fbaipublicfiles.com/moco-v3/vit-b-300ep/vit-b-300ep.pth.tar"
             checkpoint = torch.hub.load_state_dict_from_url(checkpoint_url, progress=True)
+            state_dict = checkpoint["state_dict"]
+            for k in list(state_dict.keys()):
+                if k.startswith('module.base_encoder'):
+                    state_dict[k.replace("module.base_encoder.", "")] = state_dict[k]
+                del state_dict[k]
             model = timm.create_model('vit_base_patch16_224', pretrained=False)
             if hasattr(model, 'head'):
                 model.head = torch.nn.Identity()
