@@ -76,12 +76,15 @@ def get_features(encoder, X, target_dim, device="cuda"):
             outputs = encoder(X)
             features = outputs.pooler_output
             features = features.squeeze()
-            features = pool_features(outputs, target_dim)
+            features = pool_features(features, target_dim)
 
         else:
             outputs = encoder(X)
             features = outputs.last_hidden_layer
             features = features[:, 0, :]
+            features = features.squeeze()
+            features = pool_features(features, target_dim)
+
     return features
 
 def _test_encoder(encoder_id):
