@@ -19,6 +19,7 @@ def get_encoder(encoder_id, device="cuda"):
             for k in list(state_dict.keys()):
                 if k.startswith('module.base_encoder.head'):
                     del state_dict[k]
+                    continue
                 if k.startswith('module.base_encoder'):
                     state_dict[k.replace("module.base_encoder.", "")] = state_dict[k]
                     del state_dict[k]
