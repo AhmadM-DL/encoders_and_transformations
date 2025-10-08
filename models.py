@@ -64,7 +64,7 @@ def get_features(encoder, X, target_dim, device="cuda"):
         # Clip
         if "clip" in str(type(encoder)):
           outputs = encoder.vision_model(X)
-          features = outputs.last_hidden_layer[:, 0, :]
+          features = outputs.last_hidden_state[:, 0, :]
           features = pool_features(features, target_dim)
 
         elif "timm" in str(type(encoder)):
