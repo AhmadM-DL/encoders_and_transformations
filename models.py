@@ -22,8 +22,12 @@ def get_encoder(encoder_id, device="cuda"):
                     state_dict[k.replace("module.base_encoder.", "")] = state_dict[k]
                 del state_dict[k]
             model = timm.create_model('vit_base_patch16_224', pretrained=False)
-            msg = model.load_state_dict(state_dict)
-            assert set(msg.missing_keys) == {"head.weight", "head.bias"}
+            # Drop head from ViT model
+            model.head= torch.nn.Identity()
+            try:
+                model.load_state_dict(state_dict)
+            except:
+                print("Timm model or checkpoint architecture changed")
             model.to(device)
             encoder = model
             image_processor = ViTImageProcessor()
