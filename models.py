@@ -1,40 +1,41 @@
-from transformers import AutoImageProcessor, AutoModel
+from transformers import AutoImageProcessor, AutoModel, ViTImageProcessor
 from torch.nn.functional import adaptive_avg_pool1d
 from torch import no_grad
 import torch
 import json
+import timm
 
 def get_encoder(encoder_id, device="cuda"):
 
-    if "byol" in encoder_id.lower():
-        print("Not implemented yet -- BYOL")
-        return None, None
-    
-    if "moco" in encoder_id.lower():
-        print("Not implemented yet -- MoCo")
-        return None, None
+    if "custom" in encoder_id.lower():
 
-    if "simclr" in encoder_id.lower():
-        print("Not implemented yet -- MoCo")
-        return None, None        
-    
-    image_processor = AutoImageProcessor.from_pretrained(encoder_id, use_fast=True)
-    encoder = AutoModel.from_pretrained(encoder_id).to(device)
+        if "byol" in encoder_id.lower():
+            print("Not implemented yet -- BYOL")
+        
+        if "moco" in encoder_id.lower():
+            checkpoint_url = "https://dl.fbaipublicfiles.com/moco-v3/vit-b-300ep/vit-b-300ep.pth.tar"
+            checkpoint = torch.hub.load_state_dict_from_url(checkpoint_url, progress=True)
+            model = timm.create_model('vit_base_patch16_224', pretrained=False)
+            if hasattr(model, 'head'):
+                model.head = torch.nn.Identity()
+            elif hasattr(model, 'fc'):
+                model.fc = torch.nn.Identity()
+            model.load_state_dict(checkpoint["state_dict"])
+            model.to(device)
+            encoder = model
+            image_processor = ViTImageProcessor()
+
+        if "simclr" in encoder_id.lower():
+            print("Not implemented yet -- MoCo")
+
+    else:    
+        image_processor = AutoImageProcessor.from_pretrained(encoder_id, use_fast=True)
+        encoder = AutoModel.from_pretrained(encoder_id).to(device)
 
     return encoder, image_processor
 
 
-def _pool_features(features, target_size):
-    current_size = features.shape[-1]
-    if current_size < target_size:
-        msg = f"Model output size {current_size} is less than target size {target_size}"
-        raise Exception(msg)
-    features = features.unsqueeze(1)
-    features = adaptive_avg_pool1d(features, target_size)
-    features = features.squeeze(1)
-    return features
-
-def get_features(encoder, X, features_size, device="cuda"):
+def get_features(encoder, X, device="cuda"):
     X = X.to(device)
     batch_size = X.shape[0]
     is_clip = type(encoder).__name__ == "CLIPModel"
@@ -45,7 +46,6 @@ def get_features(encoder, X, features_size, device="cuda"):
           outputs = encoder(X)
           features = outputs.pooler_output
           features = features.view(batch_size, -1)
-    features = _pool_features(features, features_size)
     return features
 
 def _test_encoder(encoder_id):
@@ -53,5 +53,4 @@ def _test_encoder(encoder_id):
     X = torch.rand((batch_size, 3, 224, 224)).to("cuda")
     encoder, img_processor = get_encoder(encoder_id)
     X = img_processor(X, return_tensors="pt")["pixel_values"]
-    features = get_features(encoder, X, 512)
-    assert features.shape == (batch_size, 512)
+    features = get_features(encoder, X)

@@ -49,7 +49,7 @@
             "note": "checked"
         },
         {
-            "id": "nyu-visionx/moco-v3-vit-b",
+            "id": "custom/moco-v3-vit-b",
             "type": "SSL",
             "input_size": 224,
             "params": "86.6M",
@@ -69,7 +69,7 @@
             "type": "SSL",
             "input_size": 224,
             "params": "86.6M",
-            "test": "", 
+            "test": "success", 
             "note": "checked"
         },
         {
@@ -85,23 +85,7 @@
             "type": "Foundation",
             "input_size": 224,
             "params": "88M",
-            "test": "", 
-            "note": "checked"
-        },
-        {
-            "id": "openai/clip-vit-large-patch14",
-            "type": "Foundation",
-            "input_size": 224,
-            "params": "428M",
-            "test": "", 
-            "note": "checked"
-        },
-        {
-            "id": "facebook/vit-mae-base",
-            "type": "Specialized",
-            "input_size": 224,
-            "params": "112M",
-            "test": "", 
+            "test": "success", 
             "note": "checked"
         },
         {
