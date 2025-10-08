@@ -53,7 +53,7 @@ def get_features(encoder, X, device="cuda"):
             features = encoder(X)
         elif "resnet" in str(type(encoder)):
             outputs = encoder(X)
-            features = outputs.hidden_layers[-1]
+            features = outputs.hidden_states[-1]
         else:
           outputs = encoder(X)
           features = outputs.last_hidden_layer
