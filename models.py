@@ -17,10 +17,10 @@ def get_encoder(encoder_id, device="cuda"):
             checkpoint = torch.hub.load_state_dict_from_url(checkpoint_url, progress=True)
             state_dict = checkpoint["state_dict"]
             for k in list(state_dict.keys()):
+                if k.startswith('module.base_encoder.head'):
+                    del state_dict[k]
                 if k.startswith('module.base_encoder'):
                     state_dict[k.replace("module.base_encoder.", "")] = state_dict[k]
-                    del state_dict[k]
-                if k.startswith('module.base_encoder.head'):
                     del state_dict[k]
             model = timm.create_model('vit_base_patch16_224', pretrained=False)
             msg = model.load_state_dict(state_dict)
