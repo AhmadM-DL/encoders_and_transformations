@@ -78,11 +78,11 @@ def get_features(encoder, X, target_dim, device="cuda"):
             features = features.squeeze()
             features = pool_features(features, target_dim)
 
+        # Transformer models
         else:
             outputs = encoder(X)
-            features = outputs.last_hidden_layer
+            features = outputs.last_hidden_state
             features = features[:, 0, :]
-            features = features.squeeze()
             features = pool_features(features, target_dim)
 
     return features
