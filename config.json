@@ -54,15 +54,15 @@
             "input_size": 224,
             "params": "86.6M",
             "test": "success", 
-            "note": "checked + old"
+            "note": "checked"
         },
         {
             "id": "facebookresearch/byol-resnet50",
             "type": "SSL",
             "input_size": 224,
             "params": "25.6M",
-            "test": "skip", 
-            "note": "checked + special + old"
+            "test": "", 
+            "note": "checked"
         },
         {
             "id": "facebook/vit-mae-base",

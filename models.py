@@ -1,6 +1,7 @@
 from transformers import AutoImageProcessor, AutoModel, ViTImageProcessor
 from torch.nn.functional import adaptive_avg_pool1d
 from torch import no_grad
+import torchvision
 import torch
 import json
 import timm
@@ -10,7 +11,13 @@ def get_encoder(encoder_id, device="cuda"):
     if "custom" in encoder_id.lower():
 
         if "byol" in encoder_id.lower():
-            print("Not implemented yet -- BYOL")
+            checkpoint_url = "https://github.com/AhmadM-DL/BYOL-Imagenet1k-Resnet50-weights/raw/refs/heads/main/pretrain_res50x1.pth"
+            checkpoint = torch.hub.load_state_dict_from_url(checkpoint_url, progress=True)
+            encoder = torchvision.models.resnet50()
+            encoder.load_state_dict(checkpoint)
+            encoder.fc = torch.nn.Identity()
+            encoder.to(device)
+            image_processor = AutoImageProcessor.from_pretrained("microsoft/resnet-50")
         
         if "moco" in encoder_id.lower():
             checkpoint_url = "https://dl.fbaipublicfiles.com/moco-v3/vit-b-300ep/vit-b-300ep.pth.tar"
@@ -67,8 +74,8 @@ def get_features(encoder, X, target_dim, device="cuda"):
           features = outputs.last_hidden_state[:, 0, :]
           features = pool_features(features, target_dim)
 
-        # Models loaded using timm
-        elif "timm" in str(type(encoder)):
+        # Models loaded using timm and torch vision
+        elif "timm" in str(type(encoder)) or "torchvision" in str(type(encoder)):
             outputs = encoder(X)
             features = pool_features(outputs, target_dim)
         
