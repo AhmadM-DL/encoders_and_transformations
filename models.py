@@ -17,7 +17,7 @@ def get_encoder(encoder_id, device="cuda"):
             encoder.load_state_dict(checkpoint)
             encoder.fc = torch.nn.Identity()
             encoder.to(device)
-            image_processor = AutoImageProcessor.from_pretrained("microsoft/resnet-50")
+            image_processor = AutoImageProcessor.from_pretrained("microsoft/resnet-50", use_fast=True)
         
         if "moco" in encoder_id.lower():
             checkpoint_url = "https://dl.fbaipublicfiles.com/moco-v3/vit-b-300ep/vit-b-300ep.pth.tar"
