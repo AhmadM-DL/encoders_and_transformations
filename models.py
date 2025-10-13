@@ -95,27 +95,30 @@ def get_features(encoder, X, target_dim, device="cuda"):
             features = outputs.pooler_output
             features = features.squeeze()
             features = pool_features(features, target_dim)
-
-        # MAE model have no cls token [AVG]
-        elif "mae" in str(type(encoder)):
-            outputs = encoder(X)
-            features = outputs.last_hidden_state
+        
+        # Swin and MAE AVG
+        elif "dpt" in str(type(encoder)) or "swin" in str(type(encoder)) or "mae" in str(type(encoder)):
+            outputs = encoder(X, output_hidden_states= True)
+            features = outputs.hidden_states[-1]
             features = features.mean(dim=1)
             features = pool_features(features, target_dim)
-        
-        # MiDaS
-        elif "dpt" in str(type(encoder)):
-            outputs = encoder.backbone(X)
-            features = outputs.feature_maps[-1]
-            features = features.mean(dim=[2, 3])
+
+        # MiDaS AVG
+        elif "dpt" in str(type(encoder)) or "swin" in str(type(encoder)) or "mae" in str(type(encoder)):
+            outputs = encoder.backbone(X, output_hidden_states= True)
+            features = outputs.hidden_states[-1]
+            features = features.mean(dim=1)
             features = pool_features(features, target_dim)
-        
+                
         # Other transformer models [CLS]
-        else:
+        elif "diet" in str(type(encoder)) or "vit" in str(type(encoder)) or "dino" in str(type(encoder)):
             outputs = encoder(X)
             features = outputs.last_hidden_state
             features = features[:, 0, :]
             features = pool_features(features, target_dim)
+        
+        else:
+            raise Exception(f"The encoder {str(type(encoder))} is not supported!")
 
     return features
 
