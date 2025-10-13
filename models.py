@@ -97,21 +97,21 @@ def get_features(encoder, X, target_dim, device="cuda"):
             features = pool_features(features, target_dim)
         
         # Swin and MAE AVG
-        elif "dpt" in str(type(encoder)) or "swin" in str(type(encoder)) or "mae" in str(type(encoder)):
+        elif "swin" in str(type(encoder)) or "mae" in str(type(encoder)):
             outputs = encoder(X, output_hidden_states= True)
             features = outputs.hidden_states[-1]
             features = features.mean(dim=1)
             features = pool_features(features, target_dim)
 
         # MiDaS AVG
-        elif "dpt" in str(type(encoder)) or "swin" in str(type(encoder)) or "mae" in str(type(encoder)):
+        elif "dpt" in str(type(encoder)):
             outputs = encoder.backbone(X, output_hidden_states= True)
             features = outputs.hidden_states[-1]
             features = features.mean(dim=1)
             features = pool_features(features, target_dim)
                 
         # Other transformer models [CLS]
-        elif "diet" in str(type(encoder)) or "vit" in str(type(encoder)) or "dino" in str(type(encoder)):
+        elif "deit" in str(type(encoder)) or "vit" in str(type(encoder)) or "dino" in str(type(encoder)):
             outputs = encoder(X)
             features = outputs.last_hidden_state
             features = features[:, 0, :]
