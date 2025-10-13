@@ -85,7 +85,7 @@
             "type": "SSL",
             "input_size": 224,
             "params": "24M",
-            "test": "", 
+            "test": "success", 
             "note": "checked"
         },
         {
@@ -97,12 +97,12 @@
             "note": "checked"
         },
         {
-            "id": "intel-isl/MiDaS",
+            "id": "Intel/dpt-swinv2-base-384",
             "type": "Specialized",
             "input_size": 384,
-            "params": "105M",
-            "test": "skip", 
-            "note": "multiple"
+            "params": "101M",
+            "test": "", 
+            "note": "checked"
         },
         {
             "id": "openai/unet",

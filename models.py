@@ -1,4 +1,4 @@
-from transformers import AutoImageProcessor, AutoModel, ViTImageProcessor
+from transformers import AutoImageProcessor, AutoModel, ViTImageProcessor, DPTForDepthEstimation
 from torch.nn.functional import adaptive_avg_pool1d
 from torch import no_grad
 import torchvision
@@ -48,6 +48,9 @@ def get_encoder(encoder_id, device="cuda"):
             encoder.to(device)
             image_processor = AutoImageProcessor.from_pretrained("microsoft/resnet-50", use_fast=True)
         
+    elif 'dpt' in encoder_id.lower():
+        image_processor = AutoImageProcessor.from_pretrained(encoder_id, use_fast=True)
+        encoder = DPTForDepthEstimation.from_pretrained(encoder_id).to(device)   
 
     else:    
         image_processor = AutoImageProcessor.from_pretrained(encoder_id, use_fast=True)
@@ -98,6 +101,13 @@ def get_features(encoder, X, target_dim, device="cuda"):
             outputs = encoder(X)
             features = outputs.last_hidden_state
             features = features.mean(dim=1)
+            features = pool_features(features, target_dim)
+        
+        # MiDaS
+        elif "dpt" in str(type(encoder)):
+            outputs = encoder.backbone(X)
+            features = outputs.feature_maps[-1]
+            features = features.mean(dim=[2, 3])
             features = pool_features(features, target_dim)
         
         # Other transformer models [CLS]
