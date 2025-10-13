@@ -40,7 +40,14 @@ def get_encoder(encoder_id, device="cuda"):
             image_processor = ViTImageProcessor()
 
         if "simclr" in encoder_id.lower():
-            print("Not implemented yet -- MoCo")
+            checkpoint_url = "https://github.com/AhmadM-DL/SimCLR-ImageNet1k-Resnet50-weights/raw/refs/heads/main/simclr_resnet50_1x_sk0.pth"
+            checkpoint = torch.hub.load_state_dict_from_url(checkpoint_url, progress=True)
+            encoder = torchvision.models.resnet50()
+            encoder.load_state_dict(checkpoint)
+            encoder.fc = torch.nn.Identity()
+            encoder.to(device)
+            image_processor = AutoImageProcessor.from_pretrained("microsoft/resnet-50", use_fast=True)
+        
 
     else:    
         image_processor = AutoImageProcessor.from_pretrained(encoder_id, use_fast=True)
