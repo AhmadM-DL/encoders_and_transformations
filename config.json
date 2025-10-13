@@ -81,7 +81,7 @@
             "note": "checked"
         },
         {
-            "id": "google/simclr-resnet-50",
+            "id": "custom/simclr-resnet-50",
             "type": "SSL",
             "input_size": 224,
             "params": "24M",
