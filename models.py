@@ -49,6 +49,7 @@ def get_encoder(encoder_id, device="cuda"):
         
         if "eva" in encoder_id.lower():
             encoder = timm.create_model('eva02_base_patch14_224.mim_in22k', pretrained=True)
+            encoder= encoder.to(device)
             image_processor = ViTImageProcessor()
         
     elif 'dpt' in encoder_id.lower():
