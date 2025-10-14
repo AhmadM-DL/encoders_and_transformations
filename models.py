@@ -84,7 +84,7 @@ def get_features(encoder, X, target_dim, device="cuda"):
           features = pool_features(features, target_dim)
 
         # Models loaded using timm and torch vision
-        elif "timm" in str(type(encoder)) or "torchvision" in str(type(encoder)):
+        elif "moco" in str(type(encoder)) or "simclr" in str(type(encoder)) or "byol" in str(type(encoder)):
             outputs = encoder(X)
             features = pool_features(outputs, target_dim)
         
