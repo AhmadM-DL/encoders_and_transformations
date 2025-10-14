@@ -105,7 +105,7 @@
             "note": "checked"
         },
         {
-            "id": "timm/eva02_base_patch14_224.mim_in22k",
+            "id": "custom/eva02_base_patch14_224.mim_in22k",
             "type": "SSL",
             "input_size": 224,
             "params": "85.8",

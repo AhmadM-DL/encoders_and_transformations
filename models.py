@@ -47,6 +47,10 @@ def get_encoder(encoder_id, device="cuda"):
             encoder.to(device)
             image_processor = AutoImageProcessor.from_pretrained("microsoft/resnet-50", use_fast=True)
         
+        if "eva" in encoder_id.lower():
+            encoder = timm.create_model('eva02_base_patch14_224.mim_in22k', pretrained=True)
+            image_processor = ViTImageProcessor()
+        
     elif 'dpt' in encoder_id.lower():
         image_processor = AutoImageProcessor.from_pretrained(encoder_id, use_fast=True)
         encoder = DPTForDepthEstimation.from_pretrained(encoder_id).to(device)   
@@ -84,7 +88,7 @@ def get_features(encoder, X, target_dim, device="cuda"):
           features = pool_features(features, target_dim)
 
         # Models loaded using timm and torch vision
-        elif "moco" in str(type(encoder)) or "simclr" in str(type(encoder)) or "byol" in str(type(encoder)):
+        elif "timm" in str(type(encoder)) or "torchvision" in str(type(encoder)):
             outputs = encoder(X)
             features = pool_features(outputs, target_dim)
         
