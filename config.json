@@ -101,16 +101,16 @@
             "type": "Specialized",
             "input_size": 384,
             "params": "101M",
-            "test": "", 
+            "test": "success", 
             "note": "checked"
         },
         {
-            "id": "openai/unet",
-            "type": "Specialized",
-            "input_size": 256,
-            "params": "UNet variant (~50M-100M depending on config)",
-            "test": "skip", 
-            "note": "multiple"
+            "id": "timm/eva02_base_patch14_224.mim_in22k",
+            "type": "SSL",
+            "input_size": 224,
+            "params": "85.8",
+            "test": "", 
+            "note": "checked"
         }
     ]
 }

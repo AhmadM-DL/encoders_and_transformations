@@ -110,7 +110,7 @@ def get_features(encoder, X, target_dim, device="cuda"):
             features = pool_features(features, target_dim)
                 
         # Other transformer models [CLS]
-        elif "deit" in str(type(encoder)) or "vit" in str(type(encoder)) or "dino" in str(type(encoder)):
+        elif "deit" in str(type(encoder)) or "vit" in str(type(encoder)) or "dino" in str(type(encoder)) or "eva" in str(type(encoder)):
             outputs = encoder(X)
             features = outputs.last_hidden_state
             features = features[:, 0, :]
