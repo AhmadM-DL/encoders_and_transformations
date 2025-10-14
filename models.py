@@ -3,7 +3,6 @@ from torch.nn.functional import adaptive_avg_pool1d
 from torch import no_grad
 import torchvision
 import torch
-import json
 import timm
 
 def get_encoder(encoder_id, device="cuda"):
