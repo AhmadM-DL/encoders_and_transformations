@@ -1,7 +1,7 @@
 from torch.utils.data import Dataset
 import torch
 from torchvision.datasets import FGVCAircraft
-
+from torchvision.transforms import ToTensor
 
 class ClassificationDataset(Dataset):
     def __init__(self, dataset_name, split, processor):
@@ -29,9 +29,9 @@ class ClassificationDataset(Dataset):
         image = self.processor(images=image, return_tensors="pt").pixel_values.squeeze()
         return image, label
 
-def _mock_processor(images, return_tensors):
-    images = torch.tensor(images)
-    return {"pixel_values": images}
+def _mock_processor(image, return_tensors):
+    image = ToTensor(image)
+    return {"pixel_values": image}
     
 def _test_dataset(dataset_name):
     dataset = ClassificationDataset(dataset_name=dataset_name, split='train', processor=_mock_processor)
