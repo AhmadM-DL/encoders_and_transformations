@@ -64,8 +64,8 @@ class ClassificationDataset(Dataset):
         elif self.dataset_name == "cub2011":
             dataset = CUB2011Dataset(root=path, split=self.split, download=True)
         elif self.dataset_name in ["retinamnist", "chestmnist", "tissuemnist"]:
-            DataClass = INFO[self.dataset_name]['python_class']
-            dataset = DataClass(split=self.split, download=True, root=path, as_rgb=True)
+            dataclass = INFO[self.dataset_name]['python_class']
+            dataset = getattr(medmnist, dataclass)(split=self.split, download=True, root=path, as_rgb=True)
         else:
             raise Exception(f"Dataset {self.dataset_name} is not supported!")
         return dataset
