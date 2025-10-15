@@ -8,6 +8,11 @@
         {
             "id" : "flowers102",
             "task": "classification",
+            "test": "success"
+        },
+        {
+            "id" : "cub2011",
+            "task": "classification",
             "test": ""
         }
     ],
