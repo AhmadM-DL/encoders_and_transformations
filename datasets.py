@@ -1,7 +1,7 @@
 from torch.utils.data import Dataset
 import torch
 import os
-from torchvision.datasets import FGVCAircraft
+from torchvision.datasets import FGVCAircraft, Flowers102
 from torchvision.transforms import ToTensor
 
 class ClassificationDataset(Dataset):
@@ -16,6 +16,8 @@ class ClassificationDataset(Dataset):
         path = os.path.join(rootpath, self.dataset_name)
         if self.dataset_name == "aircraft":
             dataset = FGVCAircraft(root=path, split=self.split, download=True)
+        elif self.dataset_name == "flowers102":
+            dataset = Flowers102(root=path, split=self.split, download=True)
         else:
             raise Exception(f"Dataset {self.dataset_name} is not supported!")
         return dataset
@@ -26,6 +28,8 @@ class ClassificationDataset(Dataset):
     def __getitem__(self, idx):
         item = self.data[idx]
         if self.dataset_name == "aircraft":
+            image, label = item[0], item[1]
+        elif self.dataset_name == "flowers102":
             image, label = item[0], item[1]
         else:
             raise Exception(f"Dataset {self.dataset_name} is not supported!")
