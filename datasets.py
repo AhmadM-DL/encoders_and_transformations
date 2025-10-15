@@ -29,7 +29,8 @@ class ClassificationDataset(Dataset):
             image, label = item[0], item[1]
         else:
             raise Exception(f"Dataset {self.dataset_name} is not supported!")
-        image = self.processor(images=image, return_tensors="pt").pixel_values.squeeze()
+        image = self.processor(images=image, return_tensors="pt")
+        image = image['pixel_values'].squeeze()
         return image, label
 
 def _mock_processor(images, return_tensors):
