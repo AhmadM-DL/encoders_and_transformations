@@ -17,7 +17,7 @@ class CUB2011Dataset(Dataset):
         self.root = root
         self.split = split
         
-        if download:
+        if download and not os.path.exists(os.path.join(root, 'CUB_200_2011')):
             download_and_extract_archive(self.url, root, extract_root=root)
         
         images_path = os.path.join(root, 'CUB_200_2011', 'images.txt')
