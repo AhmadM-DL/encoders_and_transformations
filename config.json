@@ -13,6 +13,21 @@
         {
             "id" : "cub2011",
             "task": "classification",
+            "test": "success"
+        },
+        {
+            "id" : "retinamnist",
+            "task": "classification",
+            "test": ""
+        },
+        {
+            "id" : "chestmnist",
+            "task": "classification",
+            "test": ""
+        },
+        {
+            "id" : "tissuemnist",
+            "task": "classification",
             "test": ""
         }
         
