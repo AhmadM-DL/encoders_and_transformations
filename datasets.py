@@ -79,7 +79,7 @@ class ClassificationDataset(Dataset):
         if self.dataset_name in ["aircraft", "flowers102", "cub2011"]:
             image, label = item[0], item[1]
         elif self.dataset_name in ["retinamnist", "chestmnist", "tissuemnist"]:
-            image = Image.fromarray(image)
+            image, label = item[0], item[1]
             label = int(label)
         image = self.processor(images=image, return_tensors="pt")
         image = image['pixel_values'].squeeze()
