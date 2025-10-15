@@ -6,6 +6,8 @@ from torchvision.datasets.utils import download_and_extract_archive
 from torchvision.transforms import ToTensor
 from PIL import Image
 import pandas as pd
+import medmnist
+from medmnist import INFO
 
 class CUB2011Dataset(Dataset):
     """Custom CUB-200-2011 dataset"""
@@ -61,6 +63,9 @@ class ClassificationDataset(Dataset):
             dataset = Flowers102(root=path, split=self.split, download=True)
         elif self.dataset_name == "cub2011":
             dataset = CUB2011Dataset(root=path, split=self.split, download=True)
+        elif self.dataset_name in ["retinamnist", "chestmnist", "tissuemnist"]:
+            DataClass = INFO[self.dataset_name]['python_class']
+            dataset = DataClass(split=self.split, download=True, root=path, as_rgb=True)
         else:
             raise Exception(f"Dataset {self.dataset_name} is not supported!")
         return dataset
@@ -72,19 +77,9 @@ class ClassificationDataset(Dataset):
         item = self.data[idx]
         if self.dataset_name in ["aircraft", "flowers102", "cub2011"]:
             image, label = item[0], item[1]
-        else:
-            raise Exception(f"Dataset {self.dataset_name} is not supported!")
+        elif self.dataset_name in ["retinamnist", "chestmnist", "tissuemnist"]:
+            image = Image.fromarray(image)
+            label = int(label)
         image = self.processor(images=image, return_tensors="pt")
         image = image['pixel_values'].squeeze()
         return image, label
-
-def _mock_processor(images, return_tensors):
-    image = ToTensor()(images)
-    return {"pixel_values": image}
-    
-def _test_dataset(dataset_name):
-    dataset = ClassificationDataset(dataset_name=dataset_name, split='train', processor=_mock_processor)
-    print(f"Dataset: {dataset_name}, Number of samples: {len(dataset)}")
-    for i in range(3):
-        image, label = dataset[i]
-        print(f"Sample {i}: Image shape: {image.shape}, Label: {label}")
