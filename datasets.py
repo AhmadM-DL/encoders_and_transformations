@@ -29,8 +29,8 @@ class ClassificationDataset(Dataset):
         image = self.processor(images=image, return_tensors="pt").pixel_values.squeeze()
         return image, label
 
-def _mock_processor(image, return_tensors):
-    image = ToTensor(image)
+def _mock_processor(images, return_tensors):
+    image = ToTensor(images)
     return {"pixel_values": image}
     
 def _test_dataset(dataset_name):
