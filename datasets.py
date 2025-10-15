@@ -8,7 +8,7 @@ class ClassificationDataset(Dataset):
         self.dataset_name = dataset_name
         self.split = split
         self.processor = processor
-        self.data = self.__download_dataset__(dataset_name, split)
+        self.data = self.__download_dataset__()
 
     def __download_dataset__(self):
         if self.dataset_name == "aircraft":
