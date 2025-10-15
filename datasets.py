@@ -33,7 +33,7 @@ class ClassificationDataset(Dataset):
         return image, label
 
 def _mock_processor(images, return_tensors):
-    image = ToTensor(images)
+    image = ToTensor()(images)
     return {"pixel_values": image}
     
 def _test_dataset(dataset_name):
