@@ -2,7 +2,8 @@
     "datasets": [
         {
             "id" : "aircraft",
-            "task": "classification"
+            "task": "classification",
+            "test": ""
         }
     ],
     "encoders": [
