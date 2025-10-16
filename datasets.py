@@ -84,3 +84,15 @@ class ClassificationDataset(Dataset):
         image = self.processor(images=image, return_tensors="pt")
         image = image['pixel_values'].squeeze()
         return image, label
+    
+def _mock_processor(images, return_tensors):
+    images = ToTensor()(images)
+    return {'pixel_values': images.unsqueeze(0)}
+
+def _test_dataset(dataset_name):
+    image = Image.new('RGB', (224, 224), color = 'red')
+    dataset = ClassificationDataset(dataset_name=dataset_name, split="train", processor=_mock_processor)
+    print(f"Dataset size: {len(dataset)}")
+    for i in range(3):
+        image, label = dataset[i]
+        print(f"Image shape: {image.shape}, Label: {label}")
