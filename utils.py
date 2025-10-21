@@ -22,17 +22,13 @@ def download_using_axel(url, output_dir, output_filename, num_connections = 10):
             "-o", os.path.join(output_dir, output_filename),
             url],
         stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        bufsize= 1,
-        universal_newlines= True,
+        stderr=subprocess.STDOUT
     )
 
     pbar = tqdm(total=100, desc="Downloading", unit="%")
 
-    for line in iter(process.stdout.readline, ''):
-        sys.stdout.write(line)
-        sys.stdout.flush()
-        print(line)
+    for line in process.stdout:
+        line = line.decode('utf-8')
         match = re.search(r'(\d{1,3})%', line)
         if match:
             progress = int(match.group(1))
@@ -41,4 +37,8 @@ def download_using_axel(url, output_dir, output_filename, num_connections = 10):
 
     process.wait()
     pbar.close()
+
+    if process.returncode != 0:
+        raise Exception(f"Axel failed with return code {process.returncode}")
+
     print("Download completed successfully!")
