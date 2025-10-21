@@ -9,7 +9,7 @@ def get_transformation(transformation_obj):
     elif transformation_name == "noise":
         scale = transformation_obj.get("scale")
         per_channel = transformation_obj.get("per_channel")
-        return iaa.AdditiveGaussianNoise(scale=scale*255, per_channel=per_channel)
+        return iaa.AdditiveGaussianNoise(scale=scale, per_channel=per_channel)
     elif transformation_name == "jigsaw":
         nb_rows = transformation_obj.get("nb_rows")
         nb_cols = transformation_obj.get("nb_cols")
