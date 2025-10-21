@@ -1,5 +1,5 @@
 import subprocess
-import os, re
+import os, re, sys
 from tqdm import tqdm
 
 def download_using_axel(url, output_dir, output_filename, num_connections = 10):
@@ -29,7 +29,9 @@ def download_using_axel(url, output_dir, output_filename, num_connections = 10):
 
     pbar = tqdm(total=100, desc="Downloading", unit="%")
 
-    for line in process.stdout:
+    for line in iter(process.stdout.readline, ''):
+        sys.stdout.write(line)
+        sys.stdout.flush()
         print(line)
         match = re.search(r'(\d{1,3})%', line)
         if match:
