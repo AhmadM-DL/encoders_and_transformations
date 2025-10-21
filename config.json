@@ -33,9 +33,13 @@
         {
             "id": "eurosat",
             "task": "classification",
+            "test": "success"
+        },
+        {
+            "id": "dtd",
+            "task": "classification",
             "test": ""
         }
-        
     ],
     "encoders": [
         {

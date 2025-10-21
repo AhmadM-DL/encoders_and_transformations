@@ -7,6 +7,7 @@ import pandas as pd
 from medmnist import INFO
 from utils import download_using_axel
 import zipfile
+import tarfile
 import medmnist
 import torch
 import os
@@ -87,6 +88,16 @@ class ClassificationDataset(Dataset):
             zip_ref = zipfile.ZipFile(os.path.join(path, "EuroSAT_RGB.zip"), 'r')
             zip_ref.extractall(path)
             dataset = ImageFolder(os.path.join(path, "EuroSAT_RGB"))
+            zip_ref.close()
+        
+        elif self.dataset_name == "dtd":
+            url = "https://www.robots.ox.ac.uk/~vgg/data/dtd/download/dtd-r1.0.1.tar.gz"
+            download_using_axel(url, path, "dtd-r1.0.1.tar.gz", 10)
+            tar_ref = tarfile.open(os.path.join(path, "dtd-r1.0.1.tar.gz"), 'r:gz') 
+            tar_ref.extractall(path)
+            dataset = ImageFolder(os.path.join(path, "dtd", "images"))
+            tar_ref.close()
+        
         else:
             raise Exception(f"Dataset {self.dataset_name} is not supported!")
         return dataset
@@ -108,6 +119,9 @@ class ClassificationDataset(Dataset):
             image, label = item[0], item[1]
 
         elif self.dataset_name == "eurosat":
+            image, label = item[0], item[1]
+        
+        elif self.dataset_name == "dtd":
             image, label = item[0], item[1]
     
         else:
