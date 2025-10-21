@@ -23,7 +23,7 @@
         {
             "id" : "chestmnist",
             "task": "classification",
-            "test": ""
+            "test": "success"
         },
         {
             "id" : "tissuemnist",
