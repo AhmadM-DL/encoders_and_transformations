@@ -106,6 +106,12 @@ class ClassificationDataset(Dataset):
         
         elif self.dataset_name == "chestmnist": # Multilabel Classification
             image, label = item[0], item[1]
+
+        elif self.dataset_name == "eurosat":
+            image, label = item[0], item[1]
+    
+        else:
+            raise Exception(f"Dataset {self.dataset_name} is not supported!")
         
         image = self.processor(images=image, return_tensors="pt")
         image = image['pixel_values'].squeeze()
