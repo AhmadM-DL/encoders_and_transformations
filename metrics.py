@@ -40,8 +40,12 @@ def augmentations_rank(embeddings, ids):
     return avg_ranks, min_ranks, max_ranks
 
 def _test_metrics():
-    embeddings = np.random.random((100, 512))
+    embeddings = np.random.random((20, 512))
+    embeddings = [[embeddings[i,:]]*5 for i in range(0, 20)]
+    embeddings = [e for e5 in embeddings for e in e5]
+    embeddings = np.array(embeddings)
+    assert embeddings.shape == (100, 512)
     ids = [ [i]*5 for i in range(1,21)]
     ids = [j for i in ids for j in i]
     recalls = top_k_augmentations_recall(embeddings, ids, 5, 5)
-    print(recalls)
+    assert recalls == [1]*20
