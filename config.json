@@ -3,7 +3,7 @@
         {
             "id": "blur",
             "sigma_min": 3,
-            "sigma_max": 5,
+            "sigma_max": 6,
             "active": true
         },
         {
