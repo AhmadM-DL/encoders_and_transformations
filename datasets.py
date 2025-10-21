@@ -85,9 +85,11 @@ class ClassificationDataset(Dataset):
         item = self.data[idx]
         if self.dataset_name in ["aircraft", "flowers102", "cub2011"]:
             image, label = item[0], item[1]
-        elif self.dataset_name in ["retinamnist", "chestmnist", "tissuemnist"]:
+        elif self.dataset_name in ["retinamnist", "tissuemnist"]:
             image, label = item[0], item[1]
             label = int(label)
+        elif self.dataset_name.lower() == "chestmnist": # Multilabel Classification
+            image, label = item[0], item[1]
         image = self.processor(images=image, return_tensors="pt")
         image = image['pixel_values'].squeeze()
         return image, label

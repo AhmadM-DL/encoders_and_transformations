@@ -4,12 +4,12 @@ from tqdm import tqdm
 
 def download_using_axel(url, output_dir, output_filename, num_connections = 10):
     
-    # Check if axel is installed
-    result = subprocess.run(["axel", "--version"], 
-                            capture_output=True,
-                            text=True,
-                            check=False)
-    if result.returncode != 0: raise Exception("Axel is not installed. Please run install_axel.sh first.")
+    if already_downloaded(output_dir, output_filename):
+        print(f"File {output_filename} already exists and appears to be completely downloaded. Skipping download.")
+        return
+
+    if not axel_available():
+        raise Exception("Axel is not installed. Please run install_axel.sh first.")
     
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
@@ -42,3 +42,21 @@ def download_using_axel(url, output_dir, output_filename, num_connections = 10):
         raise Exception(f"Axel failed with return code {process.returncode}")
 
     print("Download completed successfully!")
+
+def axel_available():
+    result = subprocess.run(["axel", "--version"], 
+                            capture_output=True,
+                            text=True,
+                            check=False)
+    if result.returncode != 0: 
+        return False
+    else:
+        return True
+        
+def already_downloaded(output_dir, output_filename):
+    output_path = os.path.join(output_dir, output_filename)
+    partial_file = output_path + ".st"
+    if os.path.exists(output_path) and not os.path.exists(partial_file):
+        return True
+    else:
+        return False
