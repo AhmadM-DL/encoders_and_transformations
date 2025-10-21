@@ -1,13 +1,15 @@
-from torch.utils.data import Dataset
-import torch
-import os
 from torchvision.datasets import FGVCAircraft, Flowers102
 from torchvision.datasets.utils import download_and_extract_archive
 from torchvision.transforms import ToTensor
+from torch.utils.data import Dataset
 from PIL import Image
 import pandas as pd
-import medmnist
 from medmnist import INFO
+from utils import download_using_axel
+import medmnist
+import torch
+import os
+
 
 class CUB2011Dataset(Dataset):
     """Custom CUB-200-2011 dataset"""
@@ -63,10 +65,15 @@ class ClassificationDataset(Dataset):
             dataset = Flowers102(root=path, split=self.split, download=True)
         elif self.dataset_name == "cub2011":
             dataset = CUB2011Dataset(root=path, split=self.split, download=True)
-        elif self.dataset_name in ["retinamnist", "chestmnist", "tissuemnist"]:
+        elif self.dataset_name in ["retinamnist", "tissuemnist"]:
             dataclass = INFO[self.dataset_name]['python_class']
             if not os.path.exists(path):  os.mkdir(path)
             dataset = getattr(medmnist, dataclass)(split=self.split, download=True, root=path, as_rgb=True, size=224)
+        elif self.dataset_name == "chestmnist":
+            url = "https://zenodo.org/records/10519652/files/chestmnist_224.npz?download=1"
+            download_using_axel(url, path, "chestmnist_224.npz", 10)
+            dataclass = INFO[self.dataset_name]['python_class']
+            dataset = getattr(medmnist, dataclass)(split= self.split, download=False, root=path, as_rgb=True, size=224)
         else:
             raise Exception(f"Dataset {self.dataset_name} is not supported!")
         return dataset
