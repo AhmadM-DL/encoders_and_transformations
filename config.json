@@ -38,6 +38,11 @@
         {
             "id": "dtd",
             "task": "classification",
+            "test": "success"
+        },
+        {
+            "id": "svhn",
+            "task": "classification",
             "test": ""
         }
     ],

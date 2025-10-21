@@ -1,4 +1,4 @@
-from torchvision.datasets import ImageFolder, FGVCAircraft, Flowers102
+from torchvision.datasets import ImageFolder, FGVCAircraft, Flowers102, SVHN
 from torchvision.datasets.utils import download_and_extract_archive
 from torchvision.transforms import ToTensor
 from torch.utils.data import Dataset
@@ -98,6 +98,9 @@ class ClassificationDataset(Dataset):
             dataset = ImageFolder(os.path.join(path, "dtd", "images"))
             tar_ref.close()
         
+        elif self.dataset_name == "svhn":
+            dataset = SVHN(root=path, split=self.split, download=True)
+        
         else:
             raise Exception(f"Dataset {self.dataset_name} is not supported!")
         return dataset
@@ -122,6 +125,9 @@ class ClassificationDataset(Dataset):
             image, label = item[0], item[1]
         
         elif self.dataset_name == "dtd":
+            image, label = item[0], item[1]
+        
+        elif self.dataset_name == "svhn":
             image, label = item[0], item[1]
     
         else:
