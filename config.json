@@ -2,7 +2,7 @@
     "transformations": [
         {
             "id": "blur",
-            "sigma_min": 0,
+            "sigma_min": 1.5,
             "sigma_max": 3,
             "active": true
         },
