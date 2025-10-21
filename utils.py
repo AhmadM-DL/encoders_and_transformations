@@ -23,7 +23,8 @@ def download_using_axel(url, output_dir, output_filename, num_connections = 10):
             url],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
-        text=True,
+        bufsize= 1,
+        universal_newlines= True,
     )
 
     pbar = tqdm(total=100, desc="Downloading", unit="%")
