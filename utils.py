@@ -4,15 +4,16 @@ from tqdm import tqdm
 
 def download_using_axel(url, output_dir, output_filename, num_connections = 10):
     
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
+
     if already_downloaded(output_dir, output_filename):
         print(f"File {output_filename} already exists and appears to be completely downloaded. Skipping download.")
         return
 
     if not axel_available():
         raise Exception("Axel is not installed. Please run install_axel.sh first.")
-    
-    if not os.path.exists(output_dir):
-        os.mkdir(output_dir)
+
 
     print(f"Downloading {url} using Axel with {num_connections} connections...")
 
