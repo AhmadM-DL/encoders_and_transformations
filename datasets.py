@@ -1,4 +1,4 @@
-from torchvision.datasets import FGVCAircraft, Flowers102
+from torchvision.datasets import datasets, FGVCAircraft, Flowers102
 from torchvision.datasets.utils import download_and_extract_archive
 from torchvision.transforms import ToTensor
 from torch.utils.data import Dataset
@@ -6,6 +6,7 @@ from PIL import Image
 import pandas as pd
 from medmnist import INFO
 from utils import download_using_axel
+import zipfile
 import medmnist
 import torch
 import os
@@ -59,6 +60,7 @@ class ClassificationDataset(Dataset):
     def __download_dataset__(self):
         rootpath = os.environ.get('DATASET_PATH', 'data')
         path = os.path.join(rootpath, self.dataset_name)
+
         if self.dataset_name == "aircraft":
             dataset = FGVCAircraft(root=path, split=self.split, download=True)
 
@@ -68,7 +70,7 @@ class ClassificationDataset(Dataset):
         elif self.dataset_name == "cub2011":
             dataset = CUB2011Dataset(root=path, split=self.split, download=True)
 
-        elif self.dataset_name in ["retinamnist"]:
+        elif self.dataset_name == "retinamnist":
             dataclass = INFO[self.dataset_name]['python_class']
             if not os.path.exists(path):  os.mkdir(path)
             dataset = getattr(medmnist, dataclass)(split=self.split, download=True, root=path, as_rgb=True, size=224)
@@ -79,6 +81,12 @@ class ClassificationDataset(Dataset):
             dataclass = INFO[self.dataset_name]['python_class']
             dataset = getattr(medmnist, dataclass)(split= self.split, download=False, root=path, as_rgb=True, size=224)
         
+        elif self.dataset_name == "eurosat":
+            url = "https://zenodo.org/record/7711810/files/EuroSAT_RGB.zip"
+            download_using_axel(url, path, "EuroSAT_RGB.zip", 10)
+            zip_ref = zipfile.ZipFile(os.path.join(path, "EuroSAT_RGB.zip"), 'r')
+            zip_ref.extractall(path)
+            dataset = datasets.ImageFolder(path)
         else:
             raise Exception(f"Dataset {self.dataset_name} is not supported!")
         return dataset
@@ -88,13 +96,17 @@ class ClassificationDataset(Dataset):
 
     def __getitem__(self, idx):
         item = self.data[idx]
+        
         if self.dataset_name in ["aircraft", "flowers102", "cub2011"]:
             image, label = item[0], item[1]
+        
         elif self.dataset_name in ["retinamnist", "tissuemnist"]:
             image, label = item[0], item[1]
             label = int(label)
-        elif self.dataset_name.lower() == "chestmnist": # Multilabel Classification
+        
+        elif self.dataset_name == "chestmnist": # Multilabel Classification
             image, label = item[0], item[1]
+        
         image = self.processor(images=image, return_tensors="pt")
         image = image['pixel_values'].squeeze()
         return image, label

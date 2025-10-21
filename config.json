@@ -22,11 +22,16 @@
         },
         {
             "id" : "chestmnist",
-            "task": "classification",
+            "task": "multilabel_classification",
             "test": "success"
         },
         {
             "id" : "tissuemnist",
+            "task": "classification",
+            "test": "success"
+        },
+        {
+            "id": "eurosat",
             "task": "classification",
             "test": ""
         }
