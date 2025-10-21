@@ -61,19 +61,24 @@ class ClassificationDataset(Dataset):
         path = os.path.join(rootpath, self.dataset_name)
         if self.dataset_name == "aircraft":
             dataset = FGVCAircraft(root=path, split=self.split, download=True)
+
         elif self.dataset_name == "flowers102":
             dataset = Flowers102(root=path, split=self.split, download=True)
+
         elif self.dataset_name == "cub2011":
             dataset = CUB2011Dataset(root=path, split=self.split, download=True)
-        elif self.dataset_name in ["retinamnist", "tissuemnist"]:
+
+        elif self.dataset_name in ["retinamnist"]:
             dataclass = INFO[self.dataset_name]['python_class']
             if not os.path.exists(path):  os.mkdir(path)
             dataset = getattr(medmnist, dataclass)(split=self.split, download=True, root=path, as_rgb=True, size=224)
-        elif self.dataset_name == "chestmnist":
-            url = "https://zenodo.org/records/10519652/files/chestmnist_224.npz?download=1"
-            download_using_axel(url, path, "chestmnist_224.npz", 10)
+        
+        elif self.dataset_name in ["chestmnist", "tissuemnist"]:
+            url = f"https://zenodo.org/records/10519652/files/{self.dataset_name}_224.npz?download=1"
+            download_using_axel(url, path, f"{self.dataset_name}_224.npz", 10)
             dataclass = INFO[self.dataset_name]['python_class']
             dataset = getattr(medmnist, dataclass)(split= self.split, download=False, root=path, as_rgb=True, size=224)
+        
         else:
             raise Exception(f"Dataset {self.dataset_name} is not supported!")
         return dataset
