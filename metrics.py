@@ -30,9 +30,9 @@ def augmentations_rank(embeddings, ids):
     for id in uids:
         original_idx= np.where(ids==id)[0][0]
         transformed_idx = np.where(ids==id)[0][1:]
-        _, neighbors = index.search(embeddings[original_idx:original_idx+1], len(embeddings))
+        _, neighbors = index.search(embeddings[original_idx:original_idx + 1], len(embeddings))
         neighbors = neighbors[0][1:] # skip self
-        ranks = [np.where(neighbors == t)[0][0].item() for t in transformed_idx]
+        ranks = [np.where(neighbors == t)[0][0].item() + 1 for t in transformed_idx] # +1 to rank from 0
         avg_ranks.append(np.mean(ranks).item())
         min_ranks.append(np.min(ranks).item())
         max_ranks.append(np.max(ranks).item())
