@@ -47,5 +47,5 @@ def _test_metrics():
     assert embeddings.shape == (100, 512)
     ids = [ [i]*5 for i in range(1,21)]
     ids = [j for i in ids for j in i]
-    recalls = top_k_augmentations_recall(embeddings, ids, 5, 5)
+    recalls = top_k_augmentations_recall(embeddings, ids, 4, 4)
     assert recalls == [1]*20
