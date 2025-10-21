@@ -1,4 +1,4 @@
-from torchvision.datasets import datasets, FGVCAircraft, Flowers102
+from torchvision.datasets import ImageFolder, FGVCAircraft, Flowers102
 from torchvision.datasets.utils import download_and_extract_archive
 from torchvision.transforms import ToTensor
 from torch.utils.data import Dataset
@@ -86,7 +86,7 @@ class ClassificationDataset(Dataset):
             download_using_axel(url, path, "EuroSAT_RGB.zip", 10)
             zip_ref = zipfile.ZipFile(os.path.join(path, "EuroSAT_RGB.zip"), 'r')
             zip_ref.extractall(path)
-            dataset = datasets.ImageFolder(path)
+            dataset = ImageFolder(path)
         else:
             raise Exception(f"Dataset {self.dataset_name} is not supported!")
         return dataset
