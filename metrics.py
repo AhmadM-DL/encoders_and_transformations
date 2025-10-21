@@ -6,6 +6,7 @@ def top_k_augmentations_recall(embeddings, ids, k, n):
     ids: list of original and augmented images ids .e.g. 111111222222...
     """
     ids = np.array(ids)
+    embeddings = np.array(embeddings)
     # Generate index
     index = faiss.IndexFlatL2(embeddings.shape[1])
     index.add(embeddings)
@@ -22,6 +23,7 @@ def top_k_augmentations_recall(embeddings, ids, k, n):
 
 def augmentations_rank(embeddings, ids):
     ids = np.array(ids)
+    embeddings = np.array(embeddings)
     # Generate index
     index = faiss.IndexFlatL2(embeddings.shape[1])
     index.add(embeddings)
@@ -32,7 +34,7 @@ def augmentations_rank(embeddings, ids):
         transformed_idx = np.where(ids==id)[0][1:]
         _, neighbors = index.search(embeddings[original_idx:original_idx + 1], len(embeddings))
         neighbors = neighbors[0][1:] # skip self
-        ranks = [np.where(neighbors == t)[0][0].item() + 1 for t in transformed_idx] # +1 to rank from 0
+        ranks = [np.where(neighbors == t)[0][0].item() + 1 for t in transformed_idx] # +1 to rank from 1
         avg_ranks.append(np.mean(ranks).item())
         min_ranks.append(np.min(ranks).item())
         max_ranks.append(np.max(ranks).item())
