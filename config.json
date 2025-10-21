@@ -2,34 +2,60 @@
     "transformations": [
         {
             "id": "blur",
+            "sigma_min": 0,
+            "sigma_max": 3,
             "active": true
         },
         {
             "id": "noise",
+            "scale": 0.2,
+            "per_channel": true,
             "active": true
         },
         {
             "id": "jigsaw",
+            "nb_rows": 5,
+            "nb_cols": 5,
             "active": true
         },
         {
             "id": "emboss",
+            "alpha_min": 0.5,
+            "alpha_max": 0.5,
+            "strength_min": 0.5,
+            "strength_max": 1.0,
             "active": true
         },
         {
             "id": "saltandpepper",
+            "p_min": 0.1,
+            "p_max": 0.3,
+            "per_channel": false,
             "active": true
         },
         {
             "id": "coarsedropout",
+            "p_min": 0.1,
+            "p_max": 0.3,
+            "size_percent_min": 0.02,
+            "size_percent_max": 0.1,
+            "per_channel": false,
             "active": true
         },
         {
-            "id": "multiplehue",
+            "id": "multiplyhue",
+            "hue_min": 0.1,
+            "hue_max": 2,
             "active": true
         },
         {
             "id": "affine",
+            "scale_min": 0.8,
+            "scale_max": 1.2,
+            "rotate_min": -45,
+            "rotate_max": 45,
+            "shear_min": -16,
+            "shear_max": 16,
             "active": true
         }
     ],

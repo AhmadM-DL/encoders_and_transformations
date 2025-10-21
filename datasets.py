@@ -103,6 +103,7 @@ class ClassificationDataset(Dataset):
         
         else:
             raise Exception(f"Dataset {self.dataset_name} is not supported!")
+        
         return dataset
 
     def __len__(self):
@@ -137,13 +138,19 @@ class ClassificationDataset(Dataset):
         image = image['pixel_values'].squeeze()
         return image, label
     
+def get_dataset(dataset_name, dataset_task, split, processor):
+    if "classification" in dataset_task:
+        return ClassificationDataset(dataset_name, split, processor)
+    else:
+        raise Exception(f"'{dataset_task.upper()}' on dataset '{dataset_name}' is not supported yet!")
+    
 def _mock_processor(images, return_tensors):
     images = ToTensor()(images)
     return {'pixel_values': images.unsqueeze(0)}
 
-def _test_dataset(dataset_name):
+def _test_dataset(dataset_name, dataset_task):
     image = Image.new('RGB', (224, 224), color = 'red')
-    dataset = ClassificationDataset(dataset_name=dataset_name, split="train", processor=_mock_processor)
+    dataset = get_dataset(dataset_name, dataset_task, 'train', _mock_processor)
     print(f"Dataset size: {len(dataset)}")
     for i in range(3):
         image, label = dataset[i]
