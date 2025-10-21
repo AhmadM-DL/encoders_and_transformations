@@ -29,6 +29,7 @@ def download_using_axel(url, output_dir, output_filename, num_connections = 10):
     pbar = tqdm(total=100, desc="Downloading", unit="%")
 
     for line in process.stdout:
+        print(line)
         match = re.search(r'(\d{1,3})%', line)
         if match:
             progress = int(match.group(1))
