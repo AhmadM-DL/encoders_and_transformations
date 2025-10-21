@@ -86,7 +86,7 @@ class ClassificationDataset(Dataset):
             download_using_axel(url, path, "EuroSAT_RGB.zip", 10)
             zip_ref = zipfile.ZipFile(os.path.join(path, "EuroSAT_RGB.zip"), 'r')
             zip_ref.extractall(path)
-            dataset = ImageFolder(path)
+            dataset = ImageFolder(os.path.join(path, "EuroSAT_RGB"))
         else:
             raise Exception(f"Dataset {self.dataset_name} is not supported!")
         return dataset
