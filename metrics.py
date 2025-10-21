@@ -16,7 +16,7 @@ def top_k_augmentations_recall(embeddings, ids, k, n):
         _, neighbors = index.search(embeddings[original_index:original_index+1], k + 1)  # +1 for self
         neighbors = neighbors[0][1:]  # skip self
         hits = sum(ids[n] == id for n in neighbors)
-        recalls.append(hits / n)
+        recalls.append((hits / n).item())
     return list(recalls)
 
 
