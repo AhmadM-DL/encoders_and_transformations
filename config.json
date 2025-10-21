@@ -1,49 +1,83 @@
 {
+    "transformations": [
+        {
+            "id": "blur",
+            "active": true
+        },
+        {
+            "id": "noise",
+            "active": true
+        },
+        {
+            "id": "jigsaw",
+            "active": true
+        },
+        {
+            "id": "emboss",
+            "active": true
+        },
+        {
+            "id": "saltandpepper",
+            "active": true
+        },
+        {
+            "id": "coarsedropout",
+            "active": true
+        },
+        {
+            "id": "multiplehue",
+            "active": true
+        },
+        {
+            "id": "affine",
+            "active": true
+        }
+    ],
     "datasets": [
         {
-            "id" : "aircraft",
+            "id": "aircraft",
             "task": "classification",
-            "test": "success"
+            "active": true
         },
         {
-            "id" : "flowers102",
+            "id": "flowers102",
             "task": "classification",
-            "test": "success"
+            "active": true
         },
         {
-            "id" : "cub2011",
+            "id": "cub2011",
             "task": "classification",
-            "test": "success"
+            "active": true
         },
         {
-            "id" : "retinamnist",
+            "id": "retinamnist",
             "task": "classification",
-            "test": "success"
+            "active": true
         },
         {
-            "id" : "chestmnist",
+            "id": "chestmnist",
             "task": "multilabel_classification",
-            "test": "success"
+            "active": true
         },
         {
-            "id" : "tissuemnist",
+            "id": "tissuemnist",
             "task": "classification",
-            "test": "success"
+            "active": true
         },
         {
             "id": "eurosat",
             "task": "classification",
-            "test": "success"
+            "active": true
         },
         {
             "id": "dtd",
             "task": "classification",
-            "test": "success"
+            "active": true
         },
         {
             "id": "svhn",
             "task": "classification",
-            "test": ""
+            "active": true
         }
     ],
     "encoders": [
@@ -51,98 +85,99 @@
             "id": "microsoft/resnet-50",
             "type": "CNN",
             "input_size": 224,
-            "params": "25.6M"
-
+            "params": "25.6M",
+            "active": true
         },
         {
             "id": "google/efficientnet-b0",
             "type": "CNN",
             "input_size": 224,
-            "params": "5.3M"
-
+            "params": "5.3M",
+            "active": true
         },
         {
             "id": "facebook/convnext-base-224",
             "type": "CNN",
             "input_size": 224,
-            "params": "89M"
-
+            "params": "89M",
+            "active": true
         },
         {
             "id": "google/vit-base-patch16-224-in21k",
             "type": "Transformer",
             "input_size": 224,
-            "params": "86.4M"
-
+            "params": "86.4M",
+            "active": true
         },
         {
             "id": "facebook/deit-base-distilled-patch16-224",
             "type": "Transformer",
             "input_size": 224,
-            "params": "86M"
-
+            "params": "86M",
+            "active": true
         },
         {
             "id": "microsoft/swin-base-patch4-window7-224",
             "type": "Transformer",
             "input_size": 224,
-            "params": "87.8M"
-
+            "params": "87.8M",
+            "active": true
         },
         {
             "id": "custom/moco-v3-vit-b",
             "type": "SSL",
             "input_size": 224,
-            "params": "86.6M"
-
+            "params": "86.6M",
+            "active": true
         },
         {
             "id": "custom/byol-resnet50",
             "type": "SSL",
             "input_size": 224,
-            "params": "25.6M"
-
+            "params": "25.6M",
+            "active": true
         },
         {
             "id": "facebook/vit-mae-base",
             "type": "SSL",
             "input_size": 224,
-            "params": "112M"
-
+            "params": "112M",
+            "active": true
         },
         {
             "id": "facebook/dinov2-base",
             "type": "SSL",
             "input_size": 224,
-            "params": "86.6M"
-
+            "params": "86.6M",
+            "active": true
         },
         {
             "id": "custom/simclr-resnet-50",
             "type": "SSL",
             "input_size": 224,
-            "params": "24M"
-
+            "params": "24M",
+            "active": true
         },
         {
             "id": "openai/clip-vit-base-patch32",
             "type": "Foundation",
             "input_size": 224,
-            "params": "88M"
-
+            "params": "88M",
+            "active": true
         },
         {
             "id": "Intel/dpt-swinv2-base-384",
             "type": "Specialized",
             "input_size": 384,
-            "params": "101M"
-
+            "params": "101M",
+            "active": true
         },
         {
             "id": "custom/eva02_base_patch14_224.mim_in22k",
             "type": "SSL",
             "input_size": 224,
-            "params": "85.8"
+            "params": "85.8",
+            "active": true
         }
     ]
 }
