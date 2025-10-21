@@ -49,3 +49,7 @@ def _test_metrics():
     ids = [j for i in ids for j in i]
     recalls = top_k_augmentations_recall(embeddings, ids, 4, 4)
     assert recalls == [1]*20
+    avg_ranks, min_ranks, max_ranks = augmentations_rank(embeddings, ids)
+    assert avg_ranks == [np.mean([1,2,3,4])]*20
+    assert min_ranks == [1]*20
+    assert max_ranks == [4]*20
