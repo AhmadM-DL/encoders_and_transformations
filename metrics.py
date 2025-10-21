@@ -39,7 +39,7 @@ def augmentations_rank(embeddings, ids):
 
     return avg_ranks, min_ranks, max_ranks
 
-def _test_top_k_augmentations_recall():
+def _test_metrics():
     embeddings = np.random.random((100, 512))
     ids = [ [i]*5 for i in range(1,21)]
     ids = [j for i in ids for j in i]
