@@ -2,20 +2,22 @@
     "transformations": [
         {
             "id": "blur",
-            "sigma_min": 3,
-            "sigma_max": 6,
+            "sigma_min": 5,
+            "sigma_max": 10,
             "active": true
         },
         {
             "id": "noise",
-            "scale": 0.2,
+            "scale": 30,
             "per_channel": true,
             "active": true
         },
         {
             "id": "jigsaw",
-            "nb_rows": 5,
-            "nb_cols": 5,
+            "nb_rows_min": 2,
+            "nb_rows_max": 5,
+            "nb_cols_min": 2,
+            "nb_cols_max": 5,
             "active": true
         },
         {

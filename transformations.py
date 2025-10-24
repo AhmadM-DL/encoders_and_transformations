@@ -13,9 +13,11 @@ def get_transformation(transformation_obj):
         per_channel = transformation_obj.get("per_channel")
         base_transform = iaa.AdditiveGaussianNoise(scale=scale, per_channel=per_channel)
     elif transformation_name == "jigsaw":
-        nb_rows = transformation_obj.get("nb_rows")
-        nb_cols = transformation_obj.get("nb_cols")
-        base_transform = iaa.Jigsaw(nb_rows=(2, nb_rows), nb_cols=(2, nb_cols))
+        nb_rows_min = transformation_obj.get("nb_rows_min")
+        nb_cols_min = transformation_obj.get("nb_cols_min")
+        nb_rows_max = transformation_obj.get("nb_rows_max")
+        nb_cols_max = transformation_obj.get("nb_cols_max")
+        base_transform = iaa.Jigsaw(nb_rows=(nb_rows_min, nb_rows_max), nb_cols=(nb_cols_min, nb_cols_max))
     elif transformation_name == "emboss":
         alpha_min = transformation_obj.get("alpha_min")
         alpha_max = transformation_obj.get("alpha_max")
