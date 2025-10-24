@@ -52,10 +52,10 @@ def get_transformation(transformation_obj):
 
 def _wrap_transformation(transformation):
     def _wrapped_transform(images):
-        if type(images)!= 'list':
+        if type(images)!= list:
             raise Exception("The transformation functions expect a list of images as an input.")
         for img in images:
-            if type(img)!= 'numpy.ndarray':
+            if type(img)!= np.ndarray:
                 raise Exception("The transformation functions expect images to be represented as numpy ndarrays.")
             if np.any(img < 0) or np.any(img > 1):
                 raise ValueError("The transformation functions expect images be scaled between 0 and 1.")
