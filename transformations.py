@@ -61,6 +61,6 @@ def _wrap_transformation(transformation):
                 raise ValueError("The transformation functions expect images be scaled between 0 and 1.")
         images_uint8 = [(img * 255).astype(np.uint8) for img in images]
         transformed_images = transformation(images=images_uint8)
-        transformed_images_float = transformed_images.astype(np.float32) / 255.0
+        transformed_images_float = [img.astype(np.float32) / 255.0 for img in transformed_images]
         return transformed_images_float
     return _wrapped_transform
