@@ -17,7 +17,9 @@ def get_transformation(transformation_obj):
         nb_cols_min = transformation_obj.get("nb_cols_min")
         nb_rows_max = transformation_obj.get("nb_rows_max")
         nb_cols_max = transformation_obj.get("nb_cols_max")
-        base_transform = iaa.Jigsaw(nb_rows=(nb_rows_min, nb_rows_max), nb_cols=(nb_cols_min, nb_cols_max))
+        max_steps_min = transformation_obj.get("max_steps_min")
+        max_steps_max = transformation_obj.get("max_steps_max")
+        base_transform = iaa.Jigsaw(nb_rows=(nb_rows_min, nb_rows_max), nb_cols=(nb_cols_min, nb_cols_max), max_steps=(max_steps_min, max_steps_max))
     elif transformation_name == "emboss":
         alpha_min = transformation_obj.get("alpha_min")
         alpha_max = transformation_obj.get("alpha_max")

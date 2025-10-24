@@ -18,6 +18,8 @@
             "nb_rows_max": 5,
             "nb_cols_min": 2,
             "nb_cols_max": 5,
+            "max_steps_min": 2,
+            "max_steps_max": 5,
             "active": true
         },
         {
