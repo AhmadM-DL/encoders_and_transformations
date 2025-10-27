@@ -26,7 +26,7 @@ def probe(encoder, processor, dataset, transformation, n_augmentations=10, sampl
     
     for idx, (image, label) in enumerate(sample_data):
         # Original image
-        image = image.numpy()
+        image = np.asarray(image)
         all_images.append(image)
         image_ids.append(idx)
         # Generate augmentations
