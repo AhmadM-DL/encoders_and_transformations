@@ -24,7 +24,7 @@ def probe(encoder, dataset, transformation, n_augmentations=10, sample_size=500,
     all_images = []
     image_ids = []
     
-    for idx, image in enumerate(sample_data):
+    for idx, (image, label) in enumerate(sample_data):
         # Original image
         all_images.append(image)
         image_ids.append(idx)
