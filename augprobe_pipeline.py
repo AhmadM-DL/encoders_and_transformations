@@ -39,10 +39,13 @@ def probe(encoder, processor, dataset, transformation, image_size= 224, n_augmen
     # Get the features of each image and augmentations
     if verbose: print("Getting images embeddings ...")
     features = []
-    for image in all_images:
-        image = processor(image, return_tensors='pt')['pixel_values']
-        feature = get_features(encoder, image, encoder_target_dim, "cuda")
-        features.append(feature)
+    batch_size = 128  
+    for i in range(0, len(all_images), batch_size):
+        batch_images = all_images[i:i+batch_size]
+        batch_processed = processor(batch_images, return_tensors='pt')['pixel_values']
+        batch_features = get_features(encoder, batch_processed, encoder_target_dim, "cuda")
+        batch_features = batch_features.cpu().numpy()
+        features.append(batch_features)
     features = np.vstack(features).astype('float32')
     
     # Compute metrics
