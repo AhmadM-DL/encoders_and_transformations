@@ -3,7 +3,7 @@ import random, os, json
 from metrics import top_k_augmentations_recall, augmentations_rank
 from encoders import get_features
 
-def probe(encoder, processor, dataset, transformation, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", verbose=True):
+def probe(encoder, processor, dataset, transformation, image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", verbose=True):
     
     # Set random seed
     random.seed(random_state)
@@ -26,6 +26,7 @@ def probe(encoder, processor, dataset, transformation, n_augmentations=10, sampl
     
     for idx, (image, label) in enumerate(sample_data):
         # Original image
+        image = image.resize(image_size)
         image = np.asarray(image)
         image = image / 255.0
         all_images.append(image)
