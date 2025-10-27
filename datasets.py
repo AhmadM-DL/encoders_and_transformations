@@ -134,8 +134,10 @@ class ClassificationDataset(Dataset):
         else:
             raise Exception(f"Dataset {self.dataset_name} is not supported!")
         
-        image = self.processor(images=image, return_tensors="pt")
-        image = image['pixel_values'].squeeze()
+        if self.processor:
+            image = self.processor(images=image, return_tensors="pt")
+            image = image['pixel_values'].squeeze()
+            
         return image, label
     
 def get_dataset(dataset_name, dataset_task, split, processor):

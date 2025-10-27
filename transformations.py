@@ -59,17 +59,10 @@ def _wrap_transformation(transformation):
         for img in images:
             if type(img)!= np.ndarray:
                 raise Exception("The transformation functions expect images to be represented as numpy ndarrays.")
-            if np.any(img < 0):
-                raise ValueError("The transformation functions doesnt expect images with negative values.")
-        # scale to [0, 1]
-        images_maxs = [ np.max(img) for img in images]
-        images_scaled = [images[i]/images_maxs[i] for i in range(len(images))]
-        # scale to [0, 255]
-        images_uint8 = [(img * 255).astype(np.uint8) for img in images_scaled]
+            if np.any(img < 0) or np.any(img > 1):
+                raise ValueError("The transformation functions expect images be scaled between 0 and 1.")
+        images_uint8 = [(img * 255).astype(np.uint8) for img in images]
         transformed_images = transformation(images=images_uint8)
-        # scale back to [0, 1]
         transformed_images_float = [img.astype(np.float32) / 255.0 for img in transformed_images]
-        # scale back to original scale
-        transformed_images_rescaled = [transformed_images_float[i]*images_maxs[i] for i in range(len(images))]
-        return transformed_images_rescaled
+        return transformed_images_float
     return _wrapped_transform

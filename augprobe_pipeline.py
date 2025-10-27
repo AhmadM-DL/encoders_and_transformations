@@ -3,7 +3,7 @@ import random, os, json
 from metrics import top_k_augmentations_recall, augmentations_rank
 from encoders import get_features
 
-def probe(encoder, dataset, transformation, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", verbose=True):
+def probe(encoder, processor, dataset, transformation, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", verbose=True):
     
     # Set random seed
     random.seed(random_state)
@@ -38,6 +38,7 @@ def probe(encoder, dataset, transformation, n_augmentations=10, sample_size=500,
     if verbose: print("Getting images embeddings ...")
     features = []
     for image in all_images:
+        image = processor(image)
         feature = get_features(encoder, image, encoder_target_dim, "cuda")
         features.append(feature)
     features = np.vstack(features).astype('float32')
