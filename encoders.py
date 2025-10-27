@@ -99,7 +99,7 @@ def get_features(encoder, X, target_dim, device="cuda"):
         elif "resnet" in str(type(encoder)) or "efficientnet" in str(type(encoder)) or "convnext" in str(type(encoder)):
             outputs = encoder(X)
             features = outputs.pooler_output
-            features = features.squeeze()
+            features = features.reshape(features.shape[0], -1)
             features = pool_features(features, target_dim)
         
         # Swin and MAE AVG
