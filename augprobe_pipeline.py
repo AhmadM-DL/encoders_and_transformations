@@ -26,7 +26,7 @@ def probe(encoder, processor, dataset, transformation, image_size= 224, n_augmen
     
     for idx, (image, label) in enumerate(sample_data):
         # Original image
-        image = image.resize(image_size)
+        image = image.resize((image_size, image_size))
         image = np.asarray(image)
         image = image / 255.0
         all_images.append(image)
