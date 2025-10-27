@@ -77,7 +77,7 @@ def pool_features(features, to_dimensionality):
     return pooled_features
 
 def get_features(encoder, X, target_dim, device="cuda"):
-    if len(X.shape):
+    if len(X.shape) != 4:
         raise Exception("The function expect a tensor of 4 dimensions.")
     
     X = X.to(device)
