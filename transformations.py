@@ -1,4 +1,4 @@
-import imgaug.augmenters as iaa
+import imaug.augmenters as iaa
 import numpy as np
 
 def get_transformation(transformation_obj):
