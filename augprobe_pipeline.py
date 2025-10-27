@@ -3,7 +3,7 @@ import random, os, json
 from metrics import top_k_augmentations_recall, augmentations_rank
 from encoders import get_features
 
-def probe(encoder, processor, dataset, transformation, image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", verbose=True):
+def probe(encoder, encoder_name, processor, dataset, dataset_name, transformation, transformation_name, image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", verbose=True):
     
     # Set random seed
     random.seed(random_state)
@@ -55,14 +55,11 @@ def probe(encoder, processor, dataset, transformation, image_size= 224, n_augmen
     
     # Store the metrics in checkpoint format
     if verbose: print("Saving to chekpoint ...")
-    encoder_name = getattr(encoder, '__name__', str(encoder))
-    dataset_name = getattr(dataset, 'dataset_name', 'unknown_dataset')
-    transformation_name = getattr(transformation, '__name__', str(transformation))
-    
     config = {
         'n_augmentations': n_augmentations,
         'sample_size': sample_size,
         'encoder_target_dim': encoder_target_dim,
+        'image_size': image_size,
         'random_state': random_state,
     }
     
