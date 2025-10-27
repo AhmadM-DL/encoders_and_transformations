@@ -39,7 +39,7 @@ def probe(encoder, processor, dataset, transformation, n_augmentations=10, sampl
     if verbose: print("Getting images embeddings ...")
     features = []
     for image in all_images:
-        image = processor(image)['pixel_values']
+        image = processor(image, return_tensors='pt')['pixel_values']
         feature = get_features(encoder, image, encoder_target_dim, "cuda")
         features.append(feature)
     features = np.vstack(features).astype('float32')
