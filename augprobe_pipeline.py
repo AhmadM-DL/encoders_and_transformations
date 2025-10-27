@@ -49,7 +49,7 @@ def probe(encoder, processor, dataset, transformation, image_size= 224, n_augmen
     features = np.vstack(features).astype('float32')
     
     # Compute metrics
-    if verbose: print({"Computing metrics ..."})
+    if verbose: print("Computing metrics ...")
     top_k_aug_recall_scores = top_k_augmentations_recall(features, image_ids, n_augmentations, n_augmentations)
     aug_avg_rank_scores, aug_min_rank_scores, aug_max_rank_scores = augmentations_rank(features, image_ids)
     
