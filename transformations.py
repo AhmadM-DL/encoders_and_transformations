@@ -20,12 +20,10 @@ def get_transformation(transformation_obj):
         max_steps_min = transformation_obj.get("max_steps_min")
         max_steps_max = transformation_obj.get("max_steps_max")
         base_transform = iaa.Jigsaw(nb_rows=(nb_rows_min, nb_rows_max), nb_cols=(nb_cols_min, nb_cols_max), max_steps=(max_steps_min, max_steps_max))
-    elif transformation_name == "emboss":
-        alpha_min = transformation_obj.get("alpha_min")
-        alpha_max = transformation_obj.get("alpha_max")
-        strength_min = transformation_obj.get("strength_min")
-        strength_max = transformation_obj.get("strength_max")
-        base_transform = iaa.Emboss(alpha=(alpha_min, alpha_max), strength=(strength_min, strength_max))
+    elif transformation_name == "kmeanscolorquantization":
+        n_colors_min = transformation_obj.get("n_colors_min")
+        n_colors_max = transformation_obj.get("n_colors_max")
+        base_transform = iaa.KMeansColorQuantization(n_colors=(n_colors_min, n_colors_max))
     elif transformation_name == "saltandpepper":
         p_min = transformation_obj.get("p_min")
         p_max = transformation_obj.get("p_max")

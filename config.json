@@ -23,11 +23,9 @@
             "active": true
         },
         {
-            "id": "emboss",
-            "alpha_min": 0.5,
-            "alpha_max": 0.5,
-            "strength_min": 0.5,
-            "strength_max": 1.0,
+            "id": "kmeanscolorquantization",
+            "n_colors_min": 4,
+            "n_colors_max": 8,
             "active": true
         },
         {
