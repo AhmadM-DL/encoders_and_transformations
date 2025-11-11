@@ -172,15 +172,18 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
             test_loss = sum(test_losses) / len(test_losses)
             test_acc = 100.0 * (np.array(test_preds) == np.array(test_labels)).sum() / len(test_labels)
             tqdm.write(f"Epoch {epoch+1}/{n_epochs}, Test Loss: {test_loss:.4f}, Test Accuracy: {test_acc:.2f}%")
+        else:
+            test_loss = None
+            test_acc = None
+            
+        # Save checkpoint
+        history.append({
+            "epoch": epoch + 1,
+            "train_loss": train_loss,
+            "val_loss": val_loss,
+            "val_accuracy": val_acc,
+            "test_loss": test_loss,
+            "test_accuracy": test_acc
+        })
 
-            # Save checkpoint
-            history.append({
-                "epoch": epoch + 1,
-                "train_loss": train_loss,
-                "val_loss": val_loss,
-                "val_accuracy": val_acc,
-                "test_loss": test_loss,
-                "test_accuracy": test_acc
-            })
-
-            save_checkpoint(chkpt_filepath, classifier, optimizer, epoch + 1, history, hyperparams)
+        save_checkpoint(chkpt_filepath, classifier, optimizer, epoch + 1, history, hyperparams)
