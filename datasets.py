@@ -1,6 +1,7 @@
 from torchvision.datasets import ImageFolder, FGVCAircraft, Flowers102, SVHN
 from torchvision.datasets.utils import download_and_extract_archive
 from torchvision.transforms import ToTensor
+from torch.utils.data import Subset
 from torch.utils.data import Dataset
 from PIL import Image
 import pandas as pd
@@ -11,6 +12,7 @@ import tarfile
 import medmnist
 import torch
 import os
+import random
 
 
 class CUB2011Dataset(Dataset):
@@ -20,6 +22,7 @@ class CUB2011Dataset(Dataset):
     def __init__(self, root, split='train', download=True):
         self.root = root
         self.split = split
+        self.val_split = 0.1
         
         if download and not os.path.exists(os.path.join(root, 'CUB_200_2011')):
             download_and_extract_archive(self.url, root, extract_root=root)
@@ -36,10 +39,16 @@ class CUB2011Dataset(Dataset):
         data = data.merge(split_df, on='img_id')
         
         if split == 'train':
-            self.data = data[data['is_train'] == 1].reset_index(drop=True)
+            train_data = data[data['is_train'] == 1].reset_index(drop=True)
+            val_size = int(len(train_data) * self.val_split)
+            self.data = train_data.iloc[val_size:].reset_index(drop=True)
+        elif split == 'val':
+            train_data = data[data['is_train'] == 1].reset_index(drop=True)
+            val_size = int(len(train_data) * self.val_split)
+            self.data = train_data.iloc[:val_size].reset_index(drop=True)
         else:
             self.data = data[data['is_train'] == 0].reset_index(drop=True)
-        
+
         self.images_dir = os.path.join(root, 'CUB_200_2011', 'images')
     
     def __len__(self):
@@ -88,6 +97,7 @@ class ClassificationDataset(Dataset):
             zip_ref = zipfile.ZipFile(os.path.join(path, "EuroSAT_RGB.zip"), 'r')
             zip_ref.extractall(path)
             dataset = ImageFolder(os.path.join(path, "EuroSAT_RGB"))
+            dataset = self._get_split_train_test_val(dataset)
             zip_ref.close()
         
         elif self.dataset_name == "dtd":
@@ -96,15 +106,48 @@ class ClassificationDataset(Dataset):
             tar_ref = tarfile.open(os.path.join(path, "dtd-r1.0.1.tar.gz"), 'r:gz') 
             tar_ref.extractall(path)
             dataset = ImageFolder(os.path.join(path, "dtd", "images"))
+            dataset = self._get_split_train_test_val(dataset)
             tar_ref.close()
         
         elif self.dataset_name == "svhn":
-            dataset = SVHN(root=path, split=self.split, download=True)
-        
+            if self.split in ["train", "val"]:
+                dataset = SVHN(root=path, split="train", download=True)
+                dataset = self._get_split_train_val(dataset)
+            elif self.split == "test":
+                dataset = SVHN(root=path, split="test", download=True)
+            else:
+                raise ValueError(f"Invalid split: {self.split}")
         else:
             raise Exception(f"Dataset {self.dataset_name} is not supported!")
         
         return dataset
+    
+    def _get_split_train_test_val(self, dataset, train_ratio=0.8, val_ratio=0.1):
+        indices = list(range(len(dataset)))
+        random.seed(42)
+        random.shuffle(indices)
+        train_size = int(train_ratio*len(dataset))
+        val_size = int(val_ratio*len(dataset))
+        if self.split == "train":
+            return Subset(dataset, indices[:train_size])
+        elif self.split == 'val':
+            return Subset(dataset, indices[train_size:train_size + val_size])
+        elif self.split == 'test':
+            return Subset(dataset, indices[train_size + val_size:])
+        else:
+            raise ValueError(f"Invalid split: {self.split}")
+
+    def _get_split_train_val(self, dataset, train_ratio=0.9):
+        indices = list(range(len(dataset)))
+        random.seed(42)
+        random.shuffle(indices)
+        train_size = int(train_ratio*len(dataset))
+        if self.split == "train":
+            return Subset(dataset, indices[:train_size])
+        elif self.split == 'val':
+            return Subset(dataset, indices[train_size:])
+        else:
+            raise ValueError(f"Invalid split: {self.split}")
 
     def __len__(self):
         return len(self.data)
