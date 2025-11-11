@@ -75,7 +75,7 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
     chkpt_filename = f"{escaped_encoder_name}_{escaped_dataset_name}.pt"
     chkpt_filepath = os.path.join(chkpt_path, chkpt_filename)
     if os.path.exists(chkpt_filepath):
-        classifier, optimizer, start_epoch, history = load_checkpoint(classifier, optimizer, chkpt_filepath) 
+        classifier, optimizer, start_epoch, history = load_checkpoint(chkpt_filepath, classifier, optimizer) 
     else:
         start_epoch = 0
         history = []
