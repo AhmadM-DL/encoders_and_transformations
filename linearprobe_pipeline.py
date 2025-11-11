@@ -1,0 +1,131 @@
+from encoders import get_encoder, get_features
+from datasets import get_dataset
+from torch.utils.data.dataloader import DataLoader
+import torch 
+import os
+from time import time
+from tqdm.notebook import tqdm
+import numpy as np
+
+def save_checkpoint(path, classifier, optimizer, epoch, history, hyperparams, weights_only=False):
+    checkpoint = {
+        'classifier_state': classifier.state_dict(),
+        'optimizer_state': optimizer.state_dict(),
+        'epoch': epoch,
+        'history': history,
+        'hyperparams': hyperparams
+    }
+    torch.save(checkpoint, path)
+
+def load_checkpoint(path, classifier, optimizer):
+    checkpoint = torch.load(path, weights_only=False)
+    classifier.load_state_dict(checkpoint['classifier_state'])
+    optimizer.load_state_dict(checkpoint['optimizer_state'])
+    epoch = checkpoint['epoch']
+    history = checkpoint['history']
+    return classifier, optimizer, epoch, history
+
+def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
+          encoder_target_dim=768, num_workers=4, learning_rate=1e-3,
+          random_state=42, chkpt_path="./chkpt", verbose=True):
+    
+    # Set random seed for reproducibility
+    torch.manual_seed(random_state)
+    
+    # Save hyperparameters
+    hyperparams = {
+        "batch_size": batch_size,
+        "encoder_target_dim": encoder_target_dim,
+        "learning_rate": learning_rate,
+    }
+    
+    # Create checkpoint directory
+    if not os.path.exists(chkpt_path):
+        os.mkdir(chkpt_path)
+
+    # Get encoder
+    if verbose: print("Loading model ...")
+    encoder, processor = get_encoder(encoder_name)
+
+    # Get datasets
+    if verbose: print("Loading dataset ...")
+    train_dataset = get_dataset(dataset_name, "train", processor)
+    test_dataset = get_dataset(dataset_name, "test", processor)
+    val_dataset = get_dataset(dataset_name, "val", processor)
+
+    # Get dataloaders
+    if verbose: print("Loading dataloaders ...")
+    train_dataloader = DataLoader(train_dataset, batch_size, shuffle= True, num_workers= num_workers)
+    test_dataloader = DataLoader(test_dataset, batch_size, shuffle= False, num_workers= num_workers)
+    val_dataloader = DataLoader(val_dataset, batch_size, shuffle= False, num_workers= num_workers)
+
+    # Define classifier
+    if verbose: print("Defining classifier ...")
+    classifier = torch.nn.Linear(encoder_target_dim, train_dataset.num_labels)
+
+    # Define optimizer
+    if verbose: print("Defining optimizer ...")
+    optimizer = torch.optim.Adam(classifier.parameters(), lr=learning_rate)
+
+    # Load checkpoint
+    if verbose: print("Loading checkpoint ...")
+    date = time.now()
+    chkpt_filename = f"{encoder_name}_{dataset_name}_{date.day}_{date.month}_{date.year}.pt"
+    chkpt_filepath = os.path.join(chkpt_path, chkpt_filename)
+    classifier, optimizer, start_epoch, history = load_checkpoint(classifier, optimizer, chkpt_filepath) 
+
+    # Define criterion
+    if verbose: print("Defining criterion ...")
+    if train_dataset.is_multilabel():
+        criterion = torch.nn.BCEWithLogitsLoss()
+    else:
+        criterion = torch.nn.CrossEntropyLoss()
+
+    if verbose: print("Starting training ...")
+    for epoch in range(start_epoch, n_epochs):
+        train_losses = []
+        classifier.train()
+        for batch in tqdm(train_dataloader, desc="Training Batches"):
+            inputs, labels = batch
+            with torch.no_grad():
+                features = get_features(encoder, inputs)
+            outputs = classifier(features)
+            loss = criterion(outputs, labels)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            train_losses.append(loss.item())
+            tqdm.set_description(f"Train Loss: {loss.item():.4f}")
+        tqdm.write(f"Epoch {epoch+1}/{n_epochs}, Train Loss: {sum(train_losses)/len(train_losses):.4f}")
+
+        # Validation loop
+        classifier.eval()
+        val_losses = []
+        val_preds = []
+        val_labels = []
+        for batch in val_dataloader:
+            inputs, labels = batch
+            
+            with torch.no_grad():
+                features = get_features(encoder, inputs)
+                outputs = classifier(features)
+
+            loss = criterion(outputs, labels)
+            val_losses.append(loss.item())
+            tqdm.set_description(f"Val Loss: {loss.item():.4f}")
+
+            if train_dataset.is_multilabel():
+                predicted = (torch.sigmoid(outputs) > 0.5).int()
+            else:
+               _, predicted = torch.max(outputs.data, 1)
+
+            val_preds.extend(predicted.cpu().numpy())
+            val_labels.extend(labels.cpu().numpy())
+
+        val_loss = sum(val_losses) / len(val_losses)
+        val_acc = 100.0 * (np.array(val_preds) == np.array(val_labels)).sum() / len(val_labels)
+        tqdm.write(f"Epoch {epoch+1}/{n_epochs}, Val Loss: {val_loss:.4f}, Val Accuracy: {val_acc:.2f}%")
+
+        # Save checkpoint
+        history.append({'epoch': epoch, 'val_loss': val_loss, 'val_accuracy': val_acc})
+        save_checkpoint(chkpt_filepath, classifier, optimizer, epoch + 1, history, hyperparams)

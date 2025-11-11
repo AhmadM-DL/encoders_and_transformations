@@ -1,10 +1,14 @@
 import numpy as np
 import random, os, json
 from metrics import top_k_augmentations_recall, augmentations_rank
-from encoders import get_features
+from encoders import get_features, get_encoder
+from datasets import get_dataset
 
-def probe(encoder, encoder_name, processor, dataset, dataset_name, transformation, transformation_name, image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", verbose=True):
+def probe(encoder_name, dataset_name, transformation, transformation_name, image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", verbose=True):
     
+    encoder, processor = get_encoder(encoder_name)
+    dataset = get_dataset(dataset_name, 'train', processor=None)
+
     # Set random seed
     random.seed(random_state)
     np.random.seed(random_state)

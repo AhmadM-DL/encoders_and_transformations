@@ -122,6 +122,18 @@ class ClassificationDataset(Dataset):
         
         return dataset
     
+    def is_multilabel(self):
+        return self.dataset_name in ["chestmnist"]
+    
+    def num_labels(self):
+        if self.is_multilabel():
+            labels = [self[i][1] for i in range(len(self))]
+            labels = [label for sublist in labels for label in sublist]
+            return len(set(labels))
+        else:
+            labels = [self[i][1] for i in range(len(self))]
+            return len(set(labels))
+                
     def _get_split_train_test_val(self, dataset, train_ratio=0.8, val_ratio=0.1):
         indices = list(range(len(dataset)))
         random.seed(42)
@@ -183,12 +195,9 @@ class ClassificationDataset(Dataset):
             
         return image, label
     
-def get_dataset(dataset_name, dataset_task, split, processor):
-    if "classification" in dataset_task:
-        return ClassificationDataset(dataset_name, split, processor)
-    else:
-        raise Exception(f"'{dataset_task.upper()}' on dataset '{dataset_name}' is not supported yet!")
-    
+def get_dataset(dataset_name, split, processor):
+    return ClassificationDataset(dataset_name, split, processor)
+
 def _mock_processor(images, return_tensors):
     images = ToTensor()(images)
     return {'pixel_values': images.unsqueeze(0)}
