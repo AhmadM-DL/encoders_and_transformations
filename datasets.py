@@ -183,7 +183,10 @@ class ClassificationDataset(Dataset):
             label = int(label)
         
         elif self.dataset_name == "chestmnist": # Multilabel Classification
-            image, label = item[0], item[1]
+            image, raw_labels = item[0], item[1]
+            label = torch.zeros(14)
+            for i in raw_labels:
+                label[i] = 1.0
 
         elif self.dataset_name == "eurosat":
             image, label = item[0], item[1]
