@@ -62,7 +62,8 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
     # Define classifier
     if verbose: print("Defining classifier ...")
     classifier = torch.nn.Linear(encoder_target_dim, train_dataset.num_labels())
-
+    classifier.to(encoder.device)
+    
     # Define optimizer
     if verbose: print("Defining optimizer ...")
     optimizer = torch.optim.Adam(classifier.parameters(), lr=learning_rate)
