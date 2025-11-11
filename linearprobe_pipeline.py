@@ -142,7 +142,7 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
         tqdm.write(f"Epoch {epoch+1}/{n_epochs}, Val Loss: {val_loss:.4f}, Val Accuracy: {val_acc:.2f}%")
 
         # Testing loop
-        if (epoch+1) % 5 != 0:
+        if (epoch+1) % 5 == 0:
             classifier.eval()
             test_losses = []
             test_preds = []
