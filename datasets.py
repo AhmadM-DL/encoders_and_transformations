@@ -125,23 +125,23 @@ class ClassificationDataset(Dataset):
     def is_multilabel(self):
         return self.dataset_name in ["chestmnist"]
     
-def num_labels(self):
-    labels_map = {
-        "chestmnist": 14,
-        "retinamnist": 5,
-        "tissuemnist": 8,
-        "aircraft": 100,
-        "flowers102": 102,
-        "cub2011": 200,
-        "eurosat": 10,
-        "dtd": 47,
-        "svhn": 10
-    }
-    if self.dataset_name in labels_map:
-        return labels_map[self.dataset_name]
-    else:
-        raise Exception(f"Dataset {self.dataset_name} is not supported!")
-    
+    def num_labels(self):
+        labels_map = {
+            "chestmnist": 14,
+            "retinamnist": 5,
+            "tissuemnist": 8,
+            "aircraft": 100,
+            "flowers102": 102,
+            "cub2011": 200,
+            "eurosat": 10,
+            "dtd": 47,
+            "svhn": 10
+        }
+        if self.dataset_name in labels_map:
+            return labels_map[self.dataset_name]
+        else:
+            raise Exception(f"Dataset {self.dataset_name} is not supported!")
+        
     def _get_split_train_test_val(self, dataset, train_ratio=0.8, val_ratio=0.1):
         indices = list(range(len(dataset)))
         random.seed(42)
