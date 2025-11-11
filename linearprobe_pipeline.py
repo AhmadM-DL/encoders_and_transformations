@@ -142,47 +142,45 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
         tqdm.write(f"Epoch {epoch+1}/{n_epochs}, Val Loss: {val_loss:.4f}, Val Accuracy: {val_acc:.2f}%")
 
         # Testing loop
-        if epoch % 5 != 0:
-            continue
+        if (epoch+1) % 5 != 0:
+            classifier.eval()
+            test_losses = []
+            test_preds = []
+            test_labels = []
+            pbar = tqdm(test_dataloader, desc=f'Testing Epoch {epoch+1}/{n_epochs}')
+            for batch in pbar:
+                inputs, labels = batch
+                inputs = inputs.to(encoder.device)
+                labels = labels.to(encoder.device)
+                
+                with torch.no_grad():
+                    features = get_features(encoder, inputs, encoder_target_dim, device="cuda")
+                    outputs = classifier(features)
 
-        classifier.eval()
-        test_losses = []
-        test_preds = []
-        test_labels = []
-        pbar = tqdm(test_dataloader, desc=f'Testing Epoch {epoch+1}/{n_epochs}')
-        for batch in pbar:
-            inputs, labels = batch
-            inputs = inputs.to(encoder.device)
-            labels = labels.to(encoder.device)
+                loss = criterion(outputs, labels)
+                test_losses.append(loss.item())
+                pbar.set_postfix({"Test Loss": loss.item()})
+
+                if train_dataset.is_multilabel():
+                    predicted = (torch.sigmoid(outputs) > 0.5).int()
+                else:
+                _, predicted = torch.max(outputs.data, 1)
+
+                test_preds.extend(predicted.cpu().numpy())
+                test_labels.extend(labels.cpu().numpy())
             
-            with torch.no_grad():
-                features = get_features(encoder, inputs, encoder_target_dim, device="cuda")
-                outputs = classifier(features)
+            test_loss = sum(test_losses) / len(test_losses)
+            test_acc = 100.0 * (np.array(test_preds) == np.array(test_labels)).sum() / len(test_labels)
+            tqdm.write(f"Epoch {epoch+1}/{n_epochs}, Test Loss: {test_loss:.4f}, Test Accuracy: {test_acc:.2f}%")
 
-            loss = criterion(outputs, labels)
-            test_losses.append(loss.item())
-            pbar.set_postfix({"Test Loss": loss.item()})
+            # Save checkpoint
+            history.append({
+                "epoch": epoch + 1,
+                "train_loss": train_loss,
+                "val_loss": val_loss,
+                "val_accuracy": val_acc,
+                "test_loss": test_loss,
+                "test_accuracy": test_acc
+            })
 
-            if train_dataset.is_multilabel():
-                predicted = (torch.sigmoid(outputs) > 0.5).int()
-            else:
-               _, predicted = torch.max(outputs.data, 1)
-
-            test_preds.extend(predicted.cpu().numpy())
-            test_labels.extend(labels.cpu().numpy())
-        
-        test_loss = sum(test_losses) / len(test_losses)
-        test_acc = 100.0 * (np.array(test_preds) == np.array(test_labels)).sum() / len(test_labels)
-        tqdm.write(f"Epoch {epoch+1}/{n_epochs}, Test Loss: {test_loss:.4f}, Test Accuracy: {test_acc:.2f}%")
-
-        # Save checkpoint
-        history.append({
-            "epoch": epoch + 1,
-            "train_loss": train_loss,
-            "val_loss": val_loss,
-            "val_accuracy": val_acc,
-            "test_loss": test_loss,
-            "test_accuracy": test_acc
-        })
-
-        save_checkpoint(chkpt_filepath, classifier, optimizer, epoch + 1, history, hyperparams)
+            save_checkpoint(chkpt_filepath, classifier, optimizer, epoch + 1, history, hyperparams)
