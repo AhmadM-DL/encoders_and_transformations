@@ -7,13 +7,14 @@ from time import time
 from tqdm.notebook import tqdm
 import numpy as np
 
-def save_checkpoint(path, classifier, optimizer, epoch, history, hyperparams, weights_only=False):
+def save_checkpoint(path, classifier, optimizer, epoch, history, hyperparams, early_stopped, weights_only=False):
     checkpoint = {
         'classifier_state': classifier.state_dict(),
         'optimizer_state': optimizer.state_dict(),
         'epoch': epoch,
         'history': history,
-        'hyperparams': hyperparams
+        'hyperparams': hyperparams,
+        'early_stopped': early_stopped
     }
     torch.save(checkpoint, path)
 
@@ -27,7 +28,8 @@ def load_checkpoint(path, classifier, optimizer):
 
 def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
           encoder_target_dim=768, num_workers=4, learning_rate=1e-3,
-          random_state=42, chkpt_path="./chkpt", verbose=True):
+          early_stopping=True, random_state=42, chkpt_path="./chkpt",
+          verbose=True):
     
     # Set random seed for reproducibility
     torch.manual_seed(random_state)
@@ -142,6 +144,24 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
         val_acc = 100.0 * (np.array(val_preds) == np.array(val_labels)).sum() / len(val_labels)
         tqdm.write(f"Epoch {epoch+1}/{n_epochs}, Val Loss: {val_loss:.4f}, Val Accuracy: {val_acc:.2f}%")
 
+        # Early stopping
+        if early_stopping:
+            recent_accs = [val_record["val_accuracy"] for val_record in history[-4:]]
+            recent_accs.append(val_acc)
+            # If no improvement in last 5 epochs, stop training
+            if max(recent_accs) - min(recent_accs) < 0.05:
+                print("Early stopping triggered. No improvement in validation accuracy.")
+                history.append({
+                    "epoch": epoch + 1, 
+                    "train_loss": train_loss,
+                    "val_loss": val_loss,
+                    "val_accuracy": val_acc,
+                    "test_loss": None,
+                    "test_accuracy": None
+                })
+                save_checkpoint(chkpt_filepath, classifier, optimizer, epoch + 1, history, hyperparams, early_stopped=True)
+                break
+
         # Testing loop
         if (epoch+1) % 5 == 0:
             classifier.eval()
@@ -188,4 +208,4 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
             "test_accuracy": test_acc
         })
 
-        save_checkpoint(chkpt_filepath, classifier, optimizer, epoch + 1, history, hyperparams)
+        save_checkpoint(chkpt_filepath, classifier, optimizer, epoch + 1, history, hyperparams, early_stopped=False)
