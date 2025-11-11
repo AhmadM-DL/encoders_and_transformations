@@ -1,6 +1,6 @@
 import subprocess
 import os, re, sys
-from tqdm import tqdm
+from tqdm.notebook import tqdm
 
 def download_using_axel(url, output_dir, output_filename, num_connections = 10):
     
