@@ -164,7 +164,7 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
                 if train_dataset.is_multilabel():
                     predicted = (torch.sigmoid(outputs) > 0.5).int()
                 else:
-                _, predicted = torch.max(outputs.data, 1)
+                    _, predicted = torch.max(outputs.data, 1)
 
                 test_preds.extend(predicted.cpu().numpy())
                 test_labels.extend(labels.cpu().numpy())
