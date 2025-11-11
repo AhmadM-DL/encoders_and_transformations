@@ -70,7 +70,9 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
 
     # Load checkpoint
     if verbose: print("Loading checkpoint ...")
-    chkpt_filename = f"{encoder_name}_{dataset_name}.pt"
+    escaped_encoder_name = encoder_name.replace("/", "_")
+    escaped_dataset_name = dataset_name.replace("/", "_")
+    chkpt_filename = f"{escaped_encoder_name}_{escaped_dataset_name}.pt"
     chkpt_filepath = os.path.join(chkpt_path, chkpt_filename)
     if os.path.exists(chkpt_filepath):
         classifier, optimizer, start_epoch, history = load_checkpoint(classifier, optimizer, chkpt_filepath) 
@@ -140,6 +142,9 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
         tqdm.write(f"Epoch {epoch+1}/{n_epochs}, Val Loss: {val_loss:.4f}, Val Accuracy: {val_acc:.2f}%")
 
         # Testing loop
+        if epoch % 5 != 0:
+            continue
+
         classifier.eval()
         test_losses = []
         test_preds = []
