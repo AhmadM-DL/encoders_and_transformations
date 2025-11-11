@@ -92,7 +92,7 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
         for batch in tqdm(train_dataloader, desc="Training Batches"):
             inputs, labels = batch
             with torch.no_grad():
-                features = get_features(encoder, inputs)
+                features = get_features(encoder, inputs, encoder_target_dim, device="cuda")
             outputs = classifier(features)
             loss = criterion(outputs, labels)
             optimizer.zero_grad()
@@ -113,7 +113,7 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
             inputs, labels = batch
             
             with torch.no_grad():
-                features = get_features(encoder, inputs)
+                features = get_features(encoder, inputs, encoder_target_dim, device="cuda")
                 outputs = classifier(features)
 
             loss = criterion(outputs, labels)
@@ -141,7 +141,7 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
             inputs, labels = batch
             
             with torch.no_grad():
-                features = get_features(encoder, inputs)
+                features = get_features(encoder, inputs, encoder_target_dim, device="cuda")
                 outputs = classifier(features)
 
             loss = criterion(outputs, labels)
