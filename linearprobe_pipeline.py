@@ -63,7 +63,7 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
     if verbose: print("Defining classifier ...")
     classifier = torch.nn.Linear(encoder_target_dim, train_dataset.num_labels())
     classifier.to(encoder.device)
-    
+
     # Define optimizer
     if verbose: print("Defining optimizer ...")
     optimizer = torch.optim.Adam(classifier.parameters(), lr=learning_rate)
@@ -90,7 +90,8 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
         train_losses = []
 
         classifier.train()
-        for batch in tqdm(train_dataloader, desc="Training Batches"):
+        pbar = tqdm(train_dataloader, desc=f'Epoch {epoch+1}/{n_epochs}')
+        for batch in pbar:
             inputs, labels = batch
             inputs = inputs.to(encoder.device)
             labels = labels.to(encoder.device)
@@ -102,7 +103,7 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
             loss.backward()
             optimizer.step()
             train_losses.append(loss.item())
-            tqdm.set_description(f"Train Loss: {loss.item():.4f}")
+            pbar.set_postfix({"Train Loss": loss.item()})
 
         train_loss = sum(train_losses) / len(train_losses)
         tqdm.write(f"Epoch {epoch+1}/{n_epochs}, Train Loss: {train_loss:.4f}")
@@ -112,7 +113,8 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
         val_losses = []
         val_preds = []
         val_labels = []
-        for batch in val_dataloader:
+        pbar = tqdm(val_dataloader, desc=f'Validation Epoch {epoch+1}/{n_epochs}')
+        for batch in pbar:
             inputs, labels = batch
             inputs = inputs.to(encoder.device)
             labels = labels.to(encoder.device)  
@@ -123,7 +125,7 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
 
             loss = criterion(outputs, labels)
             val_losses.append(loss.item())
-            tqdm.set_description(f"Val Loss: {loss.item():.4f}")
+            pbar.set_postfix({"Val Loss": loss.item()})
 
             if train_dataset.is_multilabel():
                 predicted = (torch.sigmoid(outputs) > 0.5).int()
@@ -142,7 +144,8 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
         test_losses = []
         test_preds = []
         test_labels = []
-        for batch in test_dataloader:
+        pbar = tqdm(test_dataloader, desc=f'Testing Epoch {epoch+1}/{n_epochs}')
+        for batch in pbar:
             inputs, labels = batch
             inputs = inputs.to(encoder.device)
             labels = labels.to(encoder.device)
@@ -153,7 +156,7 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
 
             loss = criterion(outputs, labels)
             test_losses.append(loss.item())
-            tqdm.set_description(f"Test Loss: {loss.item():.4f}")
+            pbar.set_postfix({"Test Loss": loss.item()})
 
             if train_dataset.is_multilabel():
                 predicted = (torch.sigmoid(outputs) > 0.5).int()
