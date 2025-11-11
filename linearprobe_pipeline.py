@@ -69,10 +69,13 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
 
     # Load checkpoint
     if verbose: print("Loading checkpoint ...")
-    date = time.now()
-    chkpt_filename = f"{encoder_name}_{dataset_name}_{date.day}_{date.month}_{date.year}.pt"
+    chkpt_filename = f"{encoder_name}_{dataset_name}.pt"
     chkpt_filepath = os.path.join(chkpt_path, chkpt_filename)
-    classifier, optimizer, start_epoch, history = load_checkpoint(classifier, optimizer, chkpt_filepath) 
+    if os.path.exists(chkpt_filepath):
+        classifier, optimizer, start_epoch, history = load_checkpoint(classifier, optimizer, chkpt_filepath) 
+    else:
+        start_epoch = 0
+        history = []
 
     # Define criterion
     if verbose: print("Defining criterion ...")
@@ -84,6 +87,7 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
     if verbose: print("Starting training ...")
     for epoch in range(start_epoch, n_epochs):
         train_losses = []
+
         classifier.train()
         for batch in tqdm(train_dataloader, desc="Training Batches"):
             inputs, labels = batch
@@ -96,7 +100,9 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
             optimizer.step()
             train_losses.append(loss.item())
             tqdm.set_description(f"Train Loss: {loss.item():.4f}")
-        tqdm.write(f"Epoch {epoch+1}/{n_epochs}, Train Loss: {sum(train_losses)/len(train_losses):.4f}")
+
+        train_loss = sum(train_losses) / len(train_losses)
+        tqdm.write(f"Epoch {epoch+1}/{n_epochs}, Train Loss: {train_loss:.4f}")
 
         # Validation loop
         classifier.eval()
@@ -126,6 +132,42 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
         val_acc = 100.0 * (np.array(val_preds) == np.array(val_labels)).sum() / len(val_labels)
         tqdm.write(f"Epoch {epoch+1}/{n_epochs}, Val Loss: {val_loss:.4f}, Val Accuracy: {val_acc:.2f}%")
 
+        # Testing loop
+        classifier.eval()
+        test_losses = []
+        test_preds = []
+        test_labels = []
+        for batch in test_dataloader:
+            inputs, labels = batch
+            
+            with torch.no_grad():
+                features = get_features(encoder, inputs)
+                outputs = classifier(features)
+
+            loss = criterion(outputs, labels)
+            test_losses.append(loss.item())
+            tqdm.set_description(f"Test Loss: {loss.item():.4f}")
+
+            if train_dataset.is_multilabel():
+                predicted = (torch.sigmoid(outputs) > 0.5).int()
+            else:
+               _, predicted = torch.max(outputs.data, 1)
+
+            test_preds.extend(predicted.cpu().numpy())
+            test_labels.extend(labels.cpu().numpy())
+        
+        test_loss = sum(test_losses) / len(test_losses)
+        test_acc = 100.0 * (np.array(test_preds) == np.array(test_labels)).sum() / len(test_labels)
+        tqdm.write(f"Epoch {epoch+1}/{n_epochs}, Test Loss: {test_loss:.4f}, Test Accuracy: {test_acc:.2f}%")
+
         # Save checkpoint
-        history.append({'epoch': epoch, 'val_loss': val_loss, 'val_accuracy': val_acc})
+        history.append({
+            "epoch": epoch + 1,
+            "train_loss": train_loss,
+            "val_loss": val_loss,
+            "val_accuracy": val_acc,
+            "test_loss": test_loss,
+            "test_accuracy": test_acc
+        })
+
         save_checkpoint(chkpt_filepath, classifier, optimizer, epoch + 1, history, hyperparams)
