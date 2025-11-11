@@ -184,12 +184,12 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
 
                 if train_dataset.is_multilabel():
                     predicted = (torch.sigmoid(outputs) > 0.5).int()
-                    val_preds.extend(predicted.flatten().cpu().numpy())
-                    val_labels.extend(labels.flatten().cpu().numpy())
+                    test_preds.extend(predicted.flatten().cpu().numpy())
+                    test_labels.extend(labels.flatten().cpu().numpy())
                 else:
                     _, predicted = torch.max(outputs.data, 1)
-                    val_preds.extend(predicted.cpu().numpy())
-                    val_labels.extend(labels.cpu().numpy())
+                    test_preds.extend(predicted.cpu().numpy())
+                    test_labels.extend(labels.cpu().numpy())
             
             test_loss = sum(test_losses) / len(test_losses)
             test_acc = 100.0 * (np.array(test_preds) == np.array(test_labels)).sum() / len(test_labels)
