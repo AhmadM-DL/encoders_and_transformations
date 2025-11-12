@@ -146,7 +146,7 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
 
         # Early stopping
         if early_stopping:
-            recent_accs = [[e["val_accuracy"] for e in history[-5:]]]
+            recent_accs = [e["val_accuracy"] for e in history[-5:]]
             recent_accs.append(val_acc)
             # If no improvement in last 5 epochs, stop training
             if (len(recent_accs) > 5) and (max(recent_accs) - min(recent_accs) < 0.05):
