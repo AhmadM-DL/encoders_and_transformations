@@ -12,7 +12,7 @@ def rbf_cka(embeddings, ids, n):
        id_augmented_indices = np.where(ids==id)[0][1:]
 
        id_original_embeddings = [embeddings[id_original_index]]*n
-       id_augmented_embeddings = [embeddings[id_augmented_indices]]
+       id_augmented_embeddings = embeddings[id_augmented_indices]
 
        assert len(id_original_embeddings) == len(id_augmented_embeddings)
 
@@ -152,6 +152,6 @@ def _test_metrics():
     rbf_cka_value = rbf_cka(embeddings, ids, 4)
     linear_cka_value = linear_cka(embeddings, ids, 4)
 
-    print(f"RBF_CKA: {rbf_cka_value}")
-    print(f"Linear_CKA: {linear_cka_value}")
+    assert rbf_cka_value == 1.0
+    assert linear_cka_value == 1.0
 
