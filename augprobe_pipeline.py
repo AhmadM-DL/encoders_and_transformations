@@ -23,7 +23,10 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
     if verbose: print(f"Sampling {sample_size} images ...")
     sample_indices = random.sample(range(len(dataset)), min(sample_size, len(dataset)))
     sample_data = [dataset[i] for i in sample_indices]
-    
+
+    if verbose: print("Clearing dataset from memory ...")
+    del dataset
+        
     # Apply transformations on each image in the sample
     if verbose: print("Applying transformations ...")
     all_images = []
@@ -41,8 +44,6 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
         all_images.extend(augmented_images)
         image_ids.extend([idx]*n_augmentations)  # Same ID for original and its augmentations
 
-    if verbose: print("Clearing dataset from memory ...")
-    del dataset
 
     # Get the features of each image and augmentations
     if verbose: print("Getting images embeddings ...")
