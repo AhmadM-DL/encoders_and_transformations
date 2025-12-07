@@ -6,7 +6,7 @@ from encoders import get_features, get_encoder
 from datasets import get_dataset
 from multiprocessing import Process, Queue
 
-def _get_sample(dataset_name, split, processor, random_state, sample_size):
+def _get_sample(dataset_name, split, processor, random_state, sample_size, q):
     dataset = get_dataset(dataset_name, split, processor= processor)
     # Set random seed
     random.seed(random_state)
