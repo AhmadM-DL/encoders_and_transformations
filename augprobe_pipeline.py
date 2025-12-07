@@ -4,12 +4,12 @@ from metrics import *
 from metrics import TOP_K_RECALL_METRIC, RANK_METRIC, RBF_CKA_METRIC, LINEAR_CKA_METRIC
 from encoders import get_features, get_encoder
 from datasets import get_dataset
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, shared_memory
 
-def _get_sample(dataset_name, split, processor, random_state, sample_size, q):
+def _get_sample(dataset_name, split, processor, random_state, sample_size, shared_mem_name, shape, dtype):
     print("Starting worker ...")
     try:
-        print(f"Getting dataset {dataset_name}")
+        print(f"Getting dataset {dataset_name} ...")
         dataset = get_dataset(dataset_name, split, processor= processor)
         print("Got dataset ...")
         # Set random seed
@@ -17,12 +17,18 @@ def _get_sample(dataset_name, split, processor, random_state, sample_size, q):
         np.random.seed(random_state)
         # Take a random subset
         sample_indices = random.sample(range(len(dataset)), min(sample_size, len(dataset)))
-        sample_data = [dataset[i] for i in sample_indices]
-        print("Returning sample through queue ...")
-        q.put(sample_data)
-    except Exception as e:
-        q.put(e)
-    finally:
+
+        shm = shared_memory.SharedMemory(name=shared_mem_name)
+        shared_array = np.ndarray(shape, dtype=dtype, buffer=shm.buf)
+
+        for i, idx in enumerate(sample_indices):
+            image, label = dataset[idx]
+            image = np.asarray(image.resize((shape[1], shape[2]))) / 255.0
+            if len(image.shape) == 2:
+                image = np.expand_dims(image, axis=-1)
+            shared_array[i] = image  # shape is (sample_size, H, W, C)
+
+        shm.close()
         del dataset
         gc.collect()
 
@@ -38,23 +44,30 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
 
     # Getting a sample - run dataset loading in a seprate process
     if verbose: print(f"Sampling {sample_size} images (launching a worker) ...")
-    q = Queue()
+    # Create shared memory
+    shape = (sample_size, image_size, image_size, 3)
+    dtype = np.float32
+    shm = shared_memory.SharedMemory(create=True, size=np.prod(shape) * np.dtype(dtype).itemsize)
+    shared_array = np.ndarray(shape, dtype=dtype, buffer=shm.buf)
+
     p = Process(
-        target = _get_sample,
-        args =  (dataset_name, 'train', None, random_state, sample_size, q)
+        target=_get_sample,
+        args=(dataset_name, "train", None, random_state, sample_size, shm.name, shape, dtype)
     )
     p.start()
-    sample_data = q.get()
-    if isinstance(sample_data, Exception):
-        raise sample_data
     p.join()
+
+    # Read images from shared memory
+    images = np.array(shared_array)
+    shm.close()
+    shm.unlink()
 
     # Apply transformations on each image in the sample
     if verbose: print("Applying transformations ...")
     all_images = []
     image_ids = []
     
-    for idx, (image, label) in enumerate(sample_data):
+    for idx, image in enumerate(range(sample_size)):
         # Original image
         image = image.resize((image_size, image_size))
         image = np.asarray(image)
