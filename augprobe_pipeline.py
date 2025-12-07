@@ -8,29 +8,28 @@ from multiprocessing import Process, Queue, shared_memory
 
 def _get_sample(dataset_name, split, processor, random_state, sample_size, shared_mem_name, shape, dtype):
     print("Starting worker ...")
-    try:
-        print(f"Getting dataset {dataset_name} ...")
-        dataset = get_dataset(dataset_name, split, processor= processor)
-        print("Got dataset ...")
-        # Set random seed
-        random.seed(random_state)
-        np.random.seed(random_state)
-        # Take a random subset
-        sample_indices = random.sample(range(len(dataset)), min(sample_size, len(dataset)))
+    print(f"Getting dataset {dataset_name} ...")
+    dataset = get_dataset(dataset_name, split, processor= processor)
+    print("Got dataset ...")
+    # Set random seed
+    random.seed(random_state)
+    np.random.seed(random_state)
+    # Take a random subset
+    sample_indices = random.sample(range(len(dataset)), min(sample_size, len(dataset)))
 
-        shm = shared_memory.SharedMemory(name=shared_mem_name)
-        shared_array = np.ndarray(shape, dtype=dtype, buffer=shm.buf)
+    shm = shared_memory.SharedMemory(name=shared_mem_name)
+    shared_array = np.ndarray(shape, dtype=dtype, buffer=shm.buf)
 
-        for i, idx in enumerate(sample_indices):
-            image, label = dataset[idx]
-            image = np.asarray(image.resize((shape[1], shape[2]))) / 255.0
-            if len(image.shape) == 2:
-                image = np.expand_dims(image, axis=-1)
-            shared_array[i] = image  # shape is (sample_size, H, W, C)
+    for i, idx in enumerate(sample_indices):
+        image, label = dataset[idx]
+        image = np.asarray(image.resize((shape[1], shape[2]))) / 255.0
+        if len(image.shape) == 2:
+            image = np.expand_dims(image, axis=-1)
+        shared_array[i] = image  # shape is (sample_size, H, W, C)
 
-        shm.close()
-        del dataset
-        gc.collect()
+    shm.close()
+    del dataset
+    gc.collect()
 
 def probe(encoder_name, dataset_name, transformation, transformation_name, metrics= [TOP_K_RECALL_METRIC, RANK_METRIC, RBF_CKA_METRIC, LINEAR_CKA_METRIC], image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", chkpt_name="checkpoint",  verbose=True):
     
