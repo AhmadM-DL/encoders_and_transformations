@@ -1,6 +1,7 @@
 import numpy as np
 import random, os, json
 from metrics import *
+from metrics import TOP_K_RECALL_METRIC, RANK_METRIC, RBF_CKA_METRIC, LIENEAR_CKA_METRIC
 from encoders import get_features, get_encoder
 from datasets import get_dataset
 
