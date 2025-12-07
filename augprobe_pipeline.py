@@ -11,13 +11,10 @@ def _get_sample(dataset_name, split, processor, random_state, sample_size, q):
     # Set random seed
     random.seed(random_state)
     np.random.seed(random_state)
-
     # Take a random subset
     sample_indices = random.sample(range(len(dataset)), min(sample_size, len(dataset)))
     sample_data = [dataset[i] for i in sample_indices]
-
     q.put(sample_data)
-
     del dataset
     gc.collect()
 
@@ -39,8 +36,8 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
         args =  (dataset_name, 'train', None, random_state, sample_size, q)
     )
     p.start()
-    p.join()
     sample_data = q.get()
+    p.join()
 
     # Apply transformations on each image in the sample
     if verbose: print("Applying transformations ...")
