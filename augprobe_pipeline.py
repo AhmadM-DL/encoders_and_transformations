@@ -41,6 +41,9 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
         all_images.extend(augmented_images)
         image_ids.extend([idx]*n_augmentations)  # Same ID for original and its augmentations
 
+    if verbose: print("Clearing dataset from memory ...")
+    del dataset
+
     # Get the features of each image and augmentations
     if verbose: print("Getting images embeddings ...")
     features = []
@@ -52,6 +55,9 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
         batch_features = batch_features.cpu().numpy()
         features.append(batch_features)
     features = np.vstack(features).astype('float32')
+
+    if verbose: print("Clearing images from memory ...")
+    del all_images
     
     # Compute metrics
     if verbose: print("Computing metrics ...")
@@ -77,6 +83,9 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
         linear_cka_score = linear_cka(features, image_ids, n_augmentations)
     else:
         linear_cka_score = None
+
+    if verbose: print("Clearing embeddings from memory ...")
+    del features
 
     # Store the metrics in checkpoint format
     if verbose: print("Saving to chekpoint ...")
