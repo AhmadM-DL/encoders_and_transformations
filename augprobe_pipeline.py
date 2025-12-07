@@ -1,11 +1,11 @@
 import numpy as np
 import random, os, json
 from metrics import *
-from metrics import TOP_K_RECALL_METRIC, RANK_METRIC, RBF_CKA_METRIC, LIENEAR_CKA_METRIC
+from metrics import TOP_K_RECALL_METRIC, RANK_METRIC, RBF_CKA_METRIC, LINEAR_CKA_METRIC
 from encoders import get_features, get_encoder
 from datasets import get_dataset
 
-def probe(encoder_name, dataset_name, transformation, transformation_name, metrics= [TOP_K_RECALL_METRIC, RANK_METRIC, RBF_CKA_METRIC, LIENEAR_CKA_METRIC], image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", chkpt_name="checkpoint",  verbose=True):
+def probe(encoder_name, dataset_name, transformation, transformation_name, metrics= [TOP_K_RECALL_METRIC, RANK_METRIC, RBF_CKA_METRIC, LINEAR_CKA_METRIC], image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", chkpt_name="checkpoint",  verbose=True):
     
     encoder, processor = get_encoder(encoder_name)
     dataset = get_dataset(dataset_name, 'train', processor=None)
@@ -73,7 +73,7 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
     else: 
         rbf_cka_score = None
     
-    if LIENEAR_CKA_METRIC in metrics:
+    if LINEAR_CKA_METRIC in metrics:
         linear_cka_score = linear_cka(features, image_ids, n_augmentations)
     else:
         linear_cka_score = None

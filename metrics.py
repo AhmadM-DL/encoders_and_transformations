@@ -4,7 +4,7 @@ import faiss
 TOP_K_RECALL_METRIC = "top_k_augmentations_recall"
 RANK_METRIC = "augmentations_rank"
 RBF_CKA_METRIC = "rbf_cka"
-LIENEAR_CKA_METRIC = "linear_cka"
+LINEAR_CKA_METRIC = "linear_cka"
 
 def rbf_cka(embeddings, ids, n):
     ids = np.array(ids)
