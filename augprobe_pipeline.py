@@ -8,9 +8,7 @@ from multiprocessing import Process, Queue, shared_memory
 
 def _get_sample(dataset_name, split, processor, random_state, sample_size, shared_mem_name, shape, dtype):
     print("Starting worker ...")
-    print(f"Getting dataset {dataset_name} ...")
     dataset = get_dataset(dataset_name, split, processor= processor)
-    print("Got dataset ...")
     # Set random seed
     random.seed(random_state)
     np.random.seed(random_state)
@@ -27,6 +25,7 @@ def _get_sample(dataset_name, split, processor, random_state, sample_size, share
             image = np.expand_dims(image, axis=-1)
         shared_array[i] = image  # shape is (sample_size, H, W, C)
 
+    print("Worker finished ...")
     shm.close()
     del dataset
     gc.collect()
@@ -66,8 +65,9 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
     all_images = []
     image_ids = []
     
-    for idx, image in enumerate(range(sample_size)):
+    for idx in range(sample_size):
         # Original image
+        image = images[idx]
         image = image.resize((image_size, image_size))
         image = np.asarray(image)
         image = image / 255.0

@@ -207,7 +207,6 @@ class ClassificationDataset(Dataset):
         return image, label
     
 def get_dataset(dataset_name, split, processor):
-    print("Creating classification dataset ...")
     return ClassificationDataset(dataset_name, split, processor)
 
 def _mock_processor(images, return_tensors):
