@@ -12,12 +12,12 @@ def rbf_cka(embeddings, ids, n):
        id_augmented_indices = np.where(ids==id)[0][1:]
 
        id_original_embeddings = [embeddings[id_original_index]]*n
-       id_augmented_embeddings = embeddings[id_augmented_indices]
+       id_augmented_embeddings = [embeddings[id_augmented_indices]]
 
        assert len(id_original_embeddings) == len(id_augmented_embeddings)
 
-       original_embeddings.append(id_original_embeddings)
-       augmented_embeddings.append(id_augmented_embeddings)
+       original_embeddings.extend(id_original_embeddings)
+       augmented_embeddings.extend(id_augmented_embeddings)
     original_embeddings = np.array(original_embeddings)
     augmented_embeddings = np.array(augmented_embeddings)
     return _rbf_cka(original_embeddings, augmented_embeddings, True)
@@ -37,8 +37,8 @@ def linear_cka(embeddings, ids, n):
 
        assert len(id_original_embeddings) == len(id_augmented_embeddings)
 
-       original_embeddings.append(id_original_embeddings)
-       augmented_embeddings.append(id_augmented_embeddings)
+       original_embeddings.extend(id_original_embeddings)
+       augmented_embeddings.extend(id_augmented_embeddings)
     original_embeddings = np.array(original_embeddings)
     augmented_embeddings = np.array(augmented_embeddings)
     return _linear_cka(original_embeddings, augmented_embeddings, True)
