@@ -7,14 +7,18 @@ from datasets import get_dataset
 from multiprocessing import Process, Queue
 
 def _get_sample(dataset_name, split, processor, random_state, sample_size, q):
+    print("Starting worker ...")
     try:
+        print(f"Getting dataset {dataset_name}")
         dataset = get_dataset(dataset_name, split, processor= processor)
+        print("Got dataset ...")
         # Set random seed
         random.seed(random_state)
         np.random.seed(random_state)
         # Take a random subset
         sample_indices = random.sample(range(len(dataset)), min(sample_size, len(dataset)))
         sample_data = [dataset[i] for i in sample_indices]
+        print("Returning sample through queue ...")
         q.put(sample_data)
     except Exception as e:
         q.put(e)
@@ -33,7 +37,7 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
     encoder, processor = get_encoder(encoder_name)
 
     # Getting a sample - run dataset loading in a seprate process
-    if verbose: print(f"Sampling {sample_size} images ...")
+    if verbose: print(f"Sampling {sample_size} images (launching a worker) ...")
     q = Queue()
     p = Process(
         target = _get_sample,
