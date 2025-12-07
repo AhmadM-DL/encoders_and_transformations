@@ -1,10 +1,10 @@
 import numpy as np
 import random, os, json
-from metrics import top_k_augmentations_recall, augmentations_rank
+from metrics import *
 from encoders import get_features, get_encoder
 from datasets import get_dataset
 
-def probe(encoder_name, dataset_name, transformation, transformation_name, image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", verbose=True):
+def probe(encoder_name, dataset_name, transformation, transformation_name, metrics= [TOP_K_RECALL_METRIC, RANK_METRIC, RBF_CKA_METRIC, LIENEAR_CKA_METRIC], image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", chkpt_name="checkpoint",  verbose=True):
     
     encoder, processor = get_encoder(encoder_name)
     dataset = get_dataset(dataset_name, 'train', processor=None)
@@ -54,9 +54,29 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, image
     
     # Compute metrics
     if verbose: print("Computing metrics ...")
-    top_k_aug_recall_scores = top_k_augmentations_recall(features, image_ids, n_augmentations, n_augmentations)
-    aug_avg_rank_scores, aug_min_rank_scores, aug_max_rank_scores = augmentations_rank(features, image_ids)
     
+    if TOP_K_RECALL_METRIC in metrics:
+        top_k_aug_recall_scores = top_k_augmentations_recall(features, image_ids, n_augmentations, n_augmentations)
+    else:
+        top_k_aug_recall_scores = []
+
+    if RANK_METRIC in metrics:
+        aug_avg_rank_scores, aug_min_rank_scores, aug_max_rank_scores = augmentations_rank(features, image_ids)
+    else:
+        aug_avg_rank_scores= []
+        aug_min_rank_scores= []
+        aug_max_rank_scores= []
+
+    if RBF_CKA_METRIC in metrics:
+        rbf_cka_score = rbf_cka(features, image_ids, n_augmentations)
+    else: 
+        rbf_cka_score = None
+    
+    if LIENEAR_CKA_METRIC in metrics:
+        linear_cka_score = linear_cka(features, image_ids, n_augmentations)
+    else:
+        linear_cka_score = None
+
     # Store the metrics in checkpoint format
     if verbose: print("Saving to chekpoint ...")
     config = {
@@ -76,12 +96,14 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, image
             'top_k_recall': top_k_aug_recall_scores,
             'average_rank': aug_avg_rank_scores,
             'min_rank': aug_min_rank_scores,
-            'max_rank': aug_max_rank_scores
+            'max_rank': aug_max_rank_scores,
+            'rbf_cka': rbf_cka_score,
+            'linear_cka': linear_cka_score
         }
     }
 
     # Write to checkpoint
-    chkpt_file = os.path.join(chkpt_path, "checkpoint.json")
+    chkpt_file = os.path.join(chkpt_path, f"{chkpt_name}.json")
     if os.path.exists(chkpt_file):
         chkpt = json.load(open(chkpt_file, "r"))
     else:
