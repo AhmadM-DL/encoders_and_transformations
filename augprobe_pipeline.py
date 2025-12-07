@@ -45,6 +45,9 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
         all_images.extend(augmented_images)
         image_ids.extend([idx]*n_augmentations)  # Same ID for original and its augmentations
 
+    if verbose: print("Clearing sample from memory ...")
+    del sample_data
+    gc.collect()
 
     # Get the features of each image and augmentations
     if verbose: print("Getting images embeddings ...")
