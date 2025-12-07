@@ -24,7 +24,9 @@ def _get_sample(dataset_name, split, processor, random_state, sample_size, share
         if len(image.shape) == 2:
             image = np.expand_dims(image, axis=-1)
         shared_array[i] = image  # shape is (sample_size, H, W, C)
-
+        del image
+        gc.collect()
+        
     print("Worker finished ...")
     shm.close()
     del dataset
