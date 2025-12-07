@@ -7,16 +7,20 @@ from datasets import get_dataset
 from multiprocessing import Process, Queue
 
 def _get_sample(dataset_name, split, processor, random_state, sample_size, q):
-    dataset = get_dataset(dataset_name, split, processor= processor)
-    # Set random seed
-    random.seed(random_state)
-    np.random.seed(random_state)
-    # Take a random subset
-    sample_indices = random.sample(range(len(dataset)), min(sample_size, len(dataset)))
-    sample_data = [dataset[i] for i in sample_indices]
-    q.put(sample_data)
-    del dataset
-    gc.collect()
+    try:
+        dataset = get_dataset(dataset_name, split, processor= processor)
+        # Set random seed
+        random.seed(random_state)
+        np.random.seed(random_state)
+        # Take a random subset
+        sample_indices = random.sample(range(len(dataset)), min(sample_size, len(dataset)))
+        sample_data = [dataset[i] for i in sample_indices]
+        q.put(sample_data)
+    except Exception as e:
+        q.put(e)
+    finally:
+        del dataset
+        gc.collect()
 
 def probe(encoder_name, dataset_name, transformation, transformation_name, metrics= [TOP_K_RECALL_METRIC, RANK_METRIC, RBF_CKA_METRIC, LINEAR_CKA_METRIC], image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", chkpt_name="checkpoint",  verbose=True):
     
@@ -37,6 +41,8 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
     )
     p.start()
     sample_data = q.get()
+    if isinstance(sample_data, Exception):
+        raise sample_data
     p.join()
 
     # Apply transformations on each image in the sample
