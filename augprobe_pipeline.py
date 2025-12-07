@@ -56,7 +56,7 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
     p.join()
 
     # Read images from shared memory
-    images = np.array(shared_array)
+    images = shared_array
     shm.close()
     shm.unlink()
 
@@ -68,9 +68,6 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
     for idx in range(sample_size):
         # Original image
         image = images[idx]
-        image = image.resize((image_size, image_size))
-        image = np.asarray(image)
-        image = image / 255.0
         all_images.append(image)
         image_ids.append(idx)
         # Generate augmentations
