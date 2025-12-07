@@ -1,5 +1,5 @@
 import numpy as np
-import random, os, json
+import random, os, json, gc
 from metrics import *
 from metrics import TOP_K_RECALL_METRIC, RANK_METRIC, RBF_CKA_METRIC, LINEAR_CKA_METRIC
 from encoders import get_features, get_encoder
@@ -26,6 +26,7 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
 
     if verbose: print("Clearing dataset from memory ...")
     del dataset
+    gc.collect()
 
     # Apply transformations on each image in the sample
     if verbose: print("Applying transformations ...")
@@ -59,9 +60,11 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
 
     if verbose: print("Clearing images from memory ...")
     del all_images
+    gc.collect()
 
     if verbose: print("Clearing model from memory ...")
     del encoder
+    gc.collect()
     
     # Compute metrics
     if verbose: print("Computing metrics ...")
@@ -90,6 +93,7 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
 
     if verbose: print("Clearing embeddings from memory ...")
     del features
+    gc.collect()
 
     # Store the metrics in checkpoint format
     if verbose: print("Saving to chekpoint ...")
