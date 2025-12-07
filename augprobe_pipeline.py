@@ -4,29 +4,43 @@ from metrics import *
 from metrics import TOP_K_RECALL_METRIC, RANK_METRIC, RBF_CKA_METRIC, LINEAR_CKA_METRIC
 from encoders import get_features, get_encoder
 from datasets import get_dataset
+from multiprocessing import Process, Queue
 
-def probe(encoder_name, dataset_name, transformation, transformation_name, metrics= [TOP_K_RECALL_METRIC, RANK_METRIC, RBF_CKA_METRIC, LINEAR_CKA_METRIC], image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", chkpt_name="checkpoint",  verbose=True):
-    
-    encoder, processor = get_encoder(encoder_name)
-    dataset = get_dataset(dataset_name, 'train', processor=None)
-
+def _get_sample(dataset_name, split, processor, random_state, sample_size):
+    dataset = get_dataset(dataset_name, split, processor= processor)
     # Set random seed
     random.seed(random_state)
     np.random.seed(random_state)
 
+    # Take a random subset
+    sample_indices = random.sample(range(len(dataset)), min(sample_size, len(dataset)))
+    sample_data = [dataset[i] for i in sample_indices]
+
+    q.put(sample_data)
+
+    del dataset
+    gc.collect()
+
+def probe(encoder_name, dataset_name, transformation, transformation_name, metrics= [TOP_K_RECALL_METRIC, RANK_METRIC, RBF_CKA_METRIC, LINEAR_CKA_METRIC], image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", chkpt_name="checkpoint",  verbose=True):
+    
     # Create checkpoint
     if verbose: print("Checking path ...")
     if not os.path.exists(chkpt_path):
         os.mkdir(chkpt_path)
-    
-    # Take a random subset
-    if verbose: print(f"Sampling {sample_size} images ...")
-    sample_indices = random.sample(range(len(dataset)), min(sample_size, len(dataset)))
-    sample_data = [dataset[i] for i in sample_indices]
 
-    if verbose: print("Clearing dataset from memory ...")
-    del dataset
-    gc.collect()
+    # Loading encoder
+    encoder, processor = get_encoder(encoder_name)
+
+    # Getting a sample - run dataset loading in a seprate process
+    if verbose: print(f"Sampling {sample_size} images ...")
+    q = Queue()
+    p = Process(
+        target = _get_sample,
+        args =  (dataset_name, 'train', None, random_state, sample_size, q)
+    )
+    p.start()
+    p.join()
+    sample_data = q.get()
 
     # Apply transformations on each image in the sample
     if verbose: print("Applying transformations ...")
