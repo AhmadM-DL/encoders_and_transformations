@@ -4,78 +4,48 @@ from metrics import *
 from metrics import TOP_K_RECALL_METRIC, RANK_METRIC, RBF_CKA_METRIC, LINEAR_CKA_METRIC
 from encoders import get_features, get_encoder
 from datasets import get_dataset
-from multiprocessing import Process, Queue, shared_memory
-
-def _get_sample(dataset_name, split, processor, random_state, sample_size, shared_mem_name, shape, dtype):
-    print("Starting worker ...")
-    dataset = get_dataset(dataset_name, split, processor= processor)
-    # Set random seed
-    random.seed(random_state)
-    np.random.seed(random_state)
-    # Take a random subset
-    sample_indices = random.sample(range(len(dataset)), min(sample_size, len(dataset)))
-
-    shm = shared_memory.SharedMemory(name=shared_mem_name)
-    shared_array = np.ndarray(shape, dtype=dtype, buffer=shm.buf)
-
-    for i, idx in enumerate(sample_indices):
-        image, label = dataset[idx]
-        image = np.asarray(image.resize((shape[1], shape[2]))) / 255.0
-        if len(image.shape) == 2:
-            image = np.expand_dims(image, axis=-1)
-        shared_array[i] = image  # shape is (sample_size, H, W, C)
-        del image
-        gc.collect()
-        
-    print("Worker finished ...")
-    shm.close()
-    del dataset
-    gc.collect()
 
 def probe(encoder_name, dataset_name, transformation, transformation_name, metrics= [TOP_K_RECALL_METRIC, RANK_METRIC, RBF_CKA_METRIC, LINEAR_CKA_METRIC], image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", chkpt_name="checkpoint",  verbose=True):
     
+    encoder, processor = get_encoder(encoder_name)
+    dataset = get_dataset(dataset_name, 'train', processor=None)
+
+    # Set random seed
+    random.seed(random_state)
+    np.random.seed(random_state)
+
     # Create checkpoint
     if verbose: print("Checking path ...")
     if not os.path.exists(chkpt_path):
         os.mkdir(chkpt_path)
+    
+    # Take a random subset
+    if verbose: print(f"Sampling {sample_size} images ...")
+    sample_indices = random.sample(range(len(dataset)), min(sample_size, len(dataset)))
+    sample_data = [dataset[i] for i in sample_indices]
 
-    # Loading encoder
-    encoder, processor = get_encoder(encoder_name)
-
-    # Getting a sample - run dataset loading in a seprate process
-    if verbose: print(f"Sampling {sample_size} images (launching a worker) ...")
-    # Create shared memory
-    shape = (sample_size, image_size, image_size, 3)
-    dtype = np.float32
-    shm = shared_memory.SharedMemory(create=True, size=np.prod(shape) * np.dtype(dtype).itemsize)
-    shared_array = np.ndarray(shape, dtype=dtype, buffer=shm.buf)
-
-    p = Process(
-        target=_get_sample,
-        args=(dataset_name, "train", None, random_state, sample_size, shm.name, shape, dtype)
-    )
-    p.start()
-    p.join()
-
-    # Read images from shared memory
-    images = shared_array
-    shm.close()
-    shm.unlink()
+    if verbose: print("Clearing dataset from memory ...")
+    del dataset
+    gc.collect()
 
     # Apply transformations on each image in the sample
     if verbose: print("Applying transformations ...")
     all_images = []
     image_ids = []
     
-    for idx in range(sample_size):
+    for idx, (image, label) in enumerate(sample_data):
         # Original image
-        image = images[idx]
+        image = image.resize((image_size, image_size))
+        image = np.asarray(image)
+        image = image / 255.0
         all_images.append(image)
         image_ids.append(idx)
         # Generate augmentations
         augmented_images = transformation([image]*n_augmentations)
         all_images.extend(augmented_images)
-        image_ids.extend([idx]*n_augmentations)  # Same ID for original and its augmentations
+        image_ids.extend([idx]*n_augmentations)
+        del image
+        del augmented_images
 
     if verbose: print("Clearing sample from memory ...")
     del sample_data
