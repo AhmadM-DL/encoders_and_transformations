@@ -89,7 +89,7 @@ class ClassificationDataset(Dataset):
             url = f"https://zenodo.org/records/10519652/files/{self.dataset_name}_224.npz?download=1"
             download_using_axel(url, path, f"{self.dataset_name}_224.npz", 10)
             dataclass = INFO[self.dataset_name]['python_class']
-            dataset = getattr(medmnist, dataclass)(split= self.split, download=False, root=path, as_rgb=True, size=224)
+            dataset = getattr(medmnist, dataclass)(split= self.split, download=True, root=path, as_rgb=True, size=224)
         
         elif self.dataset_name == "eurosat":
             url = "https://zenodo.org/record/7711810/files/EuroSAT_RGB.zip"
