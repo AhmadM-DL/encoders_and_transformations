@@ -18,7 +18,8 @@ def rbf_cka(embeddings, ids, n):
 
        original_embeddings.append(id_original_embeddings)
        augmented_embeddings.append(id_augmented_embeddings)
-
+    original_embeddings = np.array(original_embeddings)
+    augmented_embeddings = np.array(augmented_embeddings)
     return _rbf_cka(original_embeddings, augmented_embeddings, True)
 
 def linear_cka(embeddings, ids, n):
@@ -38,7 +39,8 @@ def linear_cka(embeddings, ids, n):
 
        original_embeddings.append(id_original_embeddings)
        augmented_embeddings.append(id_augmented_embeddings)
-
+    original_embeddings = np.array(original_embeddings)
+    augmented_embeddings = np.array(augmented_embeddings)
     return _linear_cka(original_embeddings, augmented_embeddings, True)
 
 
