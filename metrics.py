@@ -150,3 +150,6 @@ def _test_metrics():
     rbf_cka_value = rbf_cka(embeddings, ids, 4)
     linear_cka_value = linear_cka(embeddings, ids, 4)
 
+    print(f"RBF_CKA: {rbf_cka_value}")
+    print(f"Linear_CKA: {linear_cka_value}")
+
