@@ -26,7 +26,7 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
 
     if verbose: print("Clearing dataset from memory ...")
     del dataset
-        
+
     # Apply transformations on each image in the sample
     if verbose: print("Applying transformations ...")
     all_images = []
@@ -59,6 +59,9 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
 
     if verbose: print("Clearing images from memory ...")
     del all_images
+
+    if verbose: print("Clearing model from memory ...")
+    del encoder
     
     # Compute metrics
     if verbose: print("Computing metrics ...")
