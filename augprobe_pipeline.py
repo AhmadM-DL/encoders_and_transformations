@@ -44,6 +44,7 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
         augmented_images = transformation([image]*n_augmentations)
         all_images.extend(augmented_images)
         image_ids.extend([idx]*n_augmentations)
+        del image
         del augmented_images
 
     if verbose: print("Clearing sample from memory ...")
@@ -60,7 +61,7 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
         batch_features = get_features(encoder, batch_processed, encoder_target_dim, "cuda")
         batch_features = batch_features.cpu().numpy()
         features.append(batch_features)
-    features = np.vstack(features).astype('float32')
+    features = np.vstack(features).astype('float64')
 
     if verbose: print("Clearing images from memory ...")
     del all_images
