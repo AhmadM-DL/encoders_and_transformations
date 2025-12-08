@@ -16,7 +16,7 @@ def rbf_cka(embeddings, ids, n):
        id_original_index = np.where(ids==id)[0][0]
        id_augmented_indices = np.where(ids==id)[0][1:]
 
-       id_original_embeddings = [embeddings[id_original_index]]*n
+       id_original_embeddings = [embeddings[id_original_index].copy()]*n
        id_augmented_embeddings = embeddings[id_augmented_indices]
 
        assert len(id_original_embeddings) == len(id_augmented_embeddings)
@@ -37,7 +37,7 @@ def linear_cka(embeddings, ids, n):
        id_original_index = np.where(ids==id)[0][0]
        id_augmented_indices = np.where(ids==id)[0][1:]
 
-       id_original_embeddings = [embeddings[id_original_index]]*n
+       id_original_embeddings = [embeddings[id_original_index].copy()]*n
        id_augmented_embeddings = embeddings[id_augmented_indices]
 
        assert len(id_original_embeddings) == len(id_augmented_embeddings)
