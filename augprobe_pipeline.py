@@ -44,7 +44,6 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
         augmented_images = transformation([image]*n_augmentations)
         all_images.extend(augmented_images)
         image_ids.extend([idx]*n_augmentations)
-        del image
         del augmented_images
 
     if verbose: print("Clearing sample from memory ...")
