@@ -1,6 +1,9 @@
 import numpy as np
 import faiss
 from enum import Enum
+import pdb, os
+
+debug_pdb_traces = bool(os.environ.get("DEBUG_PDB_TRACES", "False"))
 
 class AltMetric(Enum):
   TOP_K_RECALL_METRIC = "top_k_augmentations_recall"
@@ -10,6 +13,7 @@ class AltMetric(Enum):
   NORMALIZED_VARIANCE_METRIC = "normalized_variance"
 
 def normalized_variance(embeddings, ids):
+  if debug_pdb_traces: pdb.set_trace()
   ids = np.array(ids)
   embeddings = np.array(embeddings)
   original_embeddings = []
