@@ -17,7 +17,7 @@ def normalized_variance(embeddings, ids):
   for id in uids:
       id_original_index = np.where(ids==id)[0][0]
       id_original_embedding = embeddings[id_original_index].copy()
-      original_embeddings.extend(id_original_embedding)
+      original_embeddings.append(id_original_embedding)
   original_embeddings = np.array(original_embeddings)
   var = np.var(original_embeddings, axis=0)
   denom = np.max(var) - np.min(var)
@@ -182,4 +182,9 @@ def _test_metrics():
 
     assert rbf_cka_value == 1.0
     assert linear_cka_value == 1.0
+
+    var_var, mean_var = normalized_variance(embeddings, ids, 4)
+
+    assert var_var>0
+    assert mean_var>0
 
