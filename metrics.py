@@ -1,11 +1,13 @@
 import numpy as np
 import faiss
+from enum import Enum
 
-TOP_K_RECALL_METRIC = "top_k_augmentations_recall"
-RANK_METRIC = "augmentations_rank"
-RBF_CKA_METRIC = "rbf_cka"
-LINEAR_CKA_METRIC = "linear_cka"
-NORMALIZED_VARIANCE_METRIC = "normalized_variance"
+class AltMetric(Enum):
+  TOP_K_RECALL_METRIC = "top_k_augmentations_recall"
+  RANK_METRIC = "augmentations_rank"
+  RBF_CKA_METRIC = "rbf_cka"
+  LINEAR_CKA_METRIC = "linear_cka"
+  NORMALIZED_VARIANCE_METRIC = "normalized_variance"
 
 def normalized_variance(embeddings, ids):
   ids = np.array(ids)
