@@ -183,7 +183,7 @@ def _test_metrics():
     assert rbf_cka_value == 1.0
     assert linear_cka_value == 1.0
 
-    var_var, mean_var = normalized_variance(embeddings, ids, 4)
+    var_var, mean_var = normalized_variance(embeddings, ids)
 
     assert var_var>0
     assert mean_var>0
