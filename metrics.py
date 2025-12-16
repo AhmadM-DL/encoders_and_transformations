@@ -13,7 +13,7 @@ class AltMetric(Enum):
   NORMALIZED_VARIANCE_METRIC = "normalized_variance"
 
 def normalized_variance(embeddings, ids):
-  if debug_pdb_traces: pdb.set_trace()
+  if debug_pdb_traces: pdb.set_trace
   ids = np.array(ids)
   embeddings = np.array(embeddings)
   original_embeddings = []
@@ -31,7 +31,7 @@ def normalized_variance(embeddings, ids):
     var_norm = (var - np.min(var)) / denom
   var_of_var = np.var(var_norm)
   mean_of_var = np.mean(var_norm)
-  return var_of_var, mean_of_var
+  return var_of_var.item(), mean_of_var.item()
 
 def rbf_cka(embeddings, ids, n):
     ids = np.array(ids)
