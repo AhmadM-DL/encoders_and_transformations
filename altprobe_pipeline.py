@@ -1,11 +1,11 @@
 import numpy as np
 import random, os, json, gc
 from metrics import *
-from metrics import TOP_K_RECALL_METRIC, RANK_METRIC, RBF_CKA_METRIC, LINEAR_CKA_METRIC
+from metrics import AltMetric
 from encoders import get_features, get_encoder
 from datasets import get_dataset
 
-def probe(encoder_name, dataset_name, transformation, transformation_name, metrics= [TOP_K_RECALL_METRIC, RANK_METRIC, RBF_CKA_METRIC, LINEAR_CKA_METRIC], image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", chkpt_name="checkpoint",  verbose=True):
+def probe(encoder_name, dataset_name, transformation, transformation_name, metrics= [AltMetric.LINEAR_CKA_METRIC, AltMetric.RBF_CKA_METRIC, AltMetric.RANK_METRIC, AltMetric.TOP_K_RECALL_METRIC, AltMetric.NORMALIZED_VARIANCE_METRIC], image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", chkpt_name="checkpoint",  verbose=True):
     
     encoder, processor = get_encoder(encoder_name)
     dataset = get_dataset(dataset_name, 'train', processor=None)
@@ -74,27 +74,33 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
     # Compute metrics
     if verbose: print("Computing metrics ...")
     
-    if TOP_K_RECALL_METRIC in metrics:
+    if AltMetric.TOP_K_RECALL_METRIC in metrics:
         top_k_aug_recall_scores = top_k_augmentations_recall(features, image_ids, n_augmentations, n_augmentations)
     else:
         top_k_aug_recall_scores = []
 
-    if RANK_METRIC in metrics:
+    if AltMetric.RANK_METRIC in metrics:
         aug_avg_rank_scores, aug_min_rank_scores, aug_max_rank_scores = augmentations_rank(features, image_ids)
     else:
         aug_avg_rank_scores= []
         aug_min_rank_scores= []
         aug_max_rank_scores= []
 
-    if RBF_CKA_METRIC in metrics:
+    if AltMetric.RBF_CKA_METRIC in metrics:
         rbf_cka_score = rbf_cka(features, image_ids, n_augmentations)
     else: 
         rbf_cka_score = None
     
-    if LINEAR_CKA_METRIC in metrics:
+    if AltMetric.LINEAR_CKA_METRIC in metrics:
         linear_cka_score = linear_cka(features, image_ids, n_augmentations)
     else:
         linear_cka_score = None
+
+    if AltMetric.NORMALIZED_VARIANCE_METRIC in metrics:
+        norm_var_var, norm_var_mean = normalized_variance(features, image_ids)
+    else:
+        norm_var_var= None
+        norm_var_mean= None 
 
     if verbose: print("Clearing embeddings from memory ...")
     del features
@@ -121,7 +127,9 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
             'min_rank': aug_min_rank_scores,
             'max_rank': aug_max_rank_scores,
             'rbf_cka': rbf_cka_score,
-            'linear_cka': linear_cka_score
+            'linear_cka': linear_cka_score,
+            "norm_var_var": norm_var_var,
+            "norm_var_mean": norm_var_mean
         }
     }
 

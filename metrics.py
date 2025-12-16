@@ -5,6 +5,27 @@ TOP_K_RECALL_METRIC = "top_k_augmentations_recall"
 RANK_METRIC = "augmentations_rank"
 RBF_CKA_METRIC = "rbf_cka"
 LINEAR_CKA_METRIC = "linear_cka"
+NORMALIZED_VARIANCE_METRIC = "normalized_variance"
+
+def normalized_variance(embeddings, ids):
+  ids = np.array(ids)
+  embeddings = np.array(embeddings)
+  original_embeddings = []
+  uids = set(ids)
+  for id in uids:
+      id_original_index = np.where(ids==id)[0][0]
+      id_original_embedding = embeddings[id_original_index].copy()
+      original_embeddings.extend(id_original_embedding)
+  original_embeddings = np.array(original_embeddings)
+  var = np.var(original_embeddings, axis=0)
+  denom = np.max(var) - np.min(var)
+  if denom == 0:
+    var_norm = np.zeros_like(var)
+  else:
+    var_norm = (var - np.min(var)) / denom
+  var_of_var = np.var(var_norm)
+  mean_of_var = np.mean(var_norm)
+  return var_of_var, mean_of_var
 
 def rbf_cka(embeddings, ids, n):
     ids = np.array(ids)
