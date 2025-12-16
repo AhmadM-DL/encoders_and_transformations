@@ -10,9 +10,9 @@ class AltMetric(Enum):
   RANK_METRIC = "augmentations_rank"
   RBF_CKA_METRIC = "rbf_cka"
   LINEAR_CKA_METRIC = "linear_cka"
-  NORMALIZED_VARIANCE_METRIC = "normalized_variance"
+  VARIANCE_METRIC = "variance"
 
-def normalized_variance(embeddings, ids):
+def variance(embeddings, ids):
   if debug_pdb_traces: pdb.set_trace
   ids = np.array(ids)
   embeddings = np.array(embeddings)
@@ -24,14 +24,7 @@ def normalized_variance(embeddings, ids):
       original_embeddings.append(id_original_embedding)
   original_embeddings = np.array(original_embeddings)
   var = np.var(original_embeddings, axis=0)
-  denom = np.max(var) - np.min(var)
-  if denom == 0:
-    var_norm = np.zeros_like(var)
-  else:
-    var_norm = (var - np.min(var)) / denom
-  var_of_var = np.var(var_norm)
-  mean_of_var = np.mean(var_norm)
-  return var_of_var.item(), mean_of_var.item()
+  return list(var)
 
 def rbf_cka(embeddings, ids, n):
     ids = np.array(ids)
@@ -187,7 +180,7 @@ def _test_metrics():
     assert rbf_cka_value == 1.0
     assert linear_cka_value == 1.0
 
-    var_var, mean_var = normalized_variance(embeddings, ids)
+    var_var, mean_var = variance(embeddings, ids)
 
     assert var_var>0
     assert mean_var>0

@@ -5,7 +5,7 @@ from metrics import AltMetric
 from encoders import get_features, get_encoder
 from datasets import get_dataset
 
-def probe(encoder_name, dataset_name, transformation, transformation_name, metrics= [AltMetric.LINEAR_CKA_METRIC, AltMetric.RBF_CKA_METRIC, AltMetric.RANK_METRIC, AltMetric.TOP_K_RECALL_METRIC, AltMetric.NORMALIZED_VARIANCE_METRIC], image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", chkpt_name="checkpoint",  verbose=True):
+def probe(encoder_name, dataset_name, transformation, transformation_name, metrics= [AltMetric.LINEAR_CKA_METRIC, AltMetric.RBF_CKA_METRIC, AltMetric.RANK_METRIC, AltMetric.TOP_K_RECALL_METRIC, AltMetric.VARIANCE_METRIC], image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", chkpt_name="checkpoint",  verbose=True):
     
     encoder, processor = get_encoder(encoder_name)
     dataset = get_dataset(dataset_name, 'train', processor=None)
@@ -96,11 +96,10 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
     else:
         linear_cka_score = None
 
-    if AltMetric.NORMALIZED_VARIANCE_METRIC in metrics:
-        norm_var_var, norm_var_mean = normalized_variance(features, image_ids)
+    if AltMetric.VARIANCE_METRIC in metrics:
+        var_metric = variance(features, image_ids)
     else:
-        norm_var_var= None
-        norm_var_mean= None 
+        var_metric= []
 
     if verbose: print("Clearing embeddings from memory ...")
     del features
@@ -128,8 +127,7 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
             'max_rank': aug_max_rank_scores,
             'rbf_cka': rbf_cka_score,
             'linear_cka': linear_cka_score,
-            "norm_var_var": norm_var_var,
-            "norm_var_mean": norm_var_mean
+            "var": var_metric
         }
     }
 
