@@ -2,6 +2,7 @@ import numpy as np
 import faiss
 from enum import Enum
 import pdb, os
+import numpy as np
 
 debug_pdb_traces = bool(os.environ.get("DEBUG_PDB_TRACES", "False"))
 
@@ -11,8 +12,34 @@ class AltMetric(Enum):
   RBF_CKA_METRIC = "rbf_cka"
   LINEAR_CKA_METRIC = "linear_cka"
   VARIANCE_METRIC = "variance"
+  INITIAL_ALIGNMENT_METRIC = "initial_alignment"
 
-import numpy as np
+def initial_alignment(embeddings, ids, labels, k=100):
+    ids = np.asarray(ids)
+    labels = np.asarray(labels)
+    embeddings = np.asarray(embeddings)
+
+    original_embeddings = []
+    original_labels = []
+    for uid in np.unique(ids):
+        idx = np.where(ids == uid)[0][0]
+        original_embeddings.append(embeddings[idx].copy())
+        original_labels.append(labels[idx].copy())
+
+    original_embeddings = np.asarray(original_embeddings)
+    original_labels = np.asarray(original_labels)
+
+    index = faiss.IndexFlatL2(original_embeddings.shape[1])
+    index.add(original_embeddings)
+    _, neighbors = index.search(original_embeddings, k)
+
+    # compute acc for each embedding
+    initial_alignments = []
+    for i in range(len(original_embeddings)):
+        neighbor_labels = original_labels[neighbors[i][1:]]  # exclude self
+        initial_alignments.append(np.sum(neighbor_labels == original_labels[i])/(k-1))
+
+    return initial_alignments
 
 def variance(embeddings, ids):
     ids = np.asarray(ids)

@@ -6,7 +6,12 @@ from encoders import get_features, get_encoder
 from datasets import get_dataset
 from utils import stratified_sample
 
-def probe(encoder_name, dataset_name, transformation, transformation_name, metrics= [AltMetric.LINEAR_CKA_METRIC, AltMetric.RBF_CKA_METRIC, AltMetric.RANK_METRIC, AltMetric.TOP_K_RECALL_METRIC, AltMetric.VARIANCE_METRIC], image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", chkpt_name="checkpoint",  verbose=True):
+def probe(encoder_name, dataset_name, transformation, transformation_name,
+          metrics= [AltMetric.LINEAR_CKA_METRIC, AltMetric.RBF_CKA_METRIC,
+                    AltMetric.RANK_METRIC, AltMetric.TOP_K_RECALL_METRIC,
+                    AltMetric.VARIANCE_METRIC, AltMetric.INITIAL_ALIGNMENT_METRIC],
+           image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768,
+             random_state=42, chkpt_path="./chkpt", chkpt_name="checkpoint",  verbose=True):
     
     encoder, processor = get_encoder(encoder_name)
     dataset = get_dataset(dataset_name, 'train', processor=None)
@@ -32,6 +37,7 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
     if verbose: print("Applying transformations ...")
     all_images = []
     image_ids = []
+    iamge_labels= []
     
     for idx, (image, label) in enumerate(sample_data):
         # Original image
@@ -40,10 +46,12 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
         image = image / 255.0
         all_images.append(image)
         image_ids.append(idx)
+        iamge_labels.append(label)
         # Generate augmentations
         augmented_images = transformation([image]*n_augmentations)
         all_images.extend(augmented_images)
         image_ids.extend([idx]*n_augmentations)
+        iamge_labels.extend([label]*n_augmentations)
         del image
         del augmented_images
 
@@ -101,6 +109,11 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
     else:
         var_metric= []
 
+    if AltMetric.INITIAL_ALIGNMENT_METRIC in metrics:
+        initial_alignment_scores = initial_alignment(features, image_ids, iamge_labels, k=100)
+    else:
+        initial_alignment_scores = []
+
     if verbose: print("Clearing embeddings from memory ...")
     del features
     gc.collect()
@@ -127,7 +140,8 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
             'max_rank': aug_max_rank_scores,
             'rbf_cka': rbf_cka_score,
             'linear_cka': linear_cka_score,
-            "var": var_metric
+            "var": var_metric,
+            "initial_alignment": initial_alignment_scores,
         }
     }
 
