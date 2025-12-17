@@ -3,6 +3,7 @@ import faiss
 from enum import Enum
 import pdb, os
 import numpy as np
+from scipy.stats import entropy
 
 debug_pdb_traces = bool(os.environ.get("DEBUG_PDB_TRACES", "False"))
 
@@ -14,6 +15,13 @@ class AltMetric(Enum):
   VARIANCE_METRIC = "variance"
   INITIAL_ALIGNMENT_NN_METRIC = "initial_alignment_nn"
   INITIAL_ALIGNMENT_CLUSTERS_METRIC = "initial_alignment_clusters"
+
+def _normalized_entropy(labels):
+    counts = np.bincount(labels)
+    active = counts[counts > 0]
+    if len(active) <= 1:
+        return 0.0
+    return entropy(active) / np.log(len(active))
 
 def initial_alignment_clusters(embeddings, ids, labels, n_clusters=100):
     ids = np.asarray(ids)
@@ -38,8 +46,6 @@ def initial_alignment_clusters(embeddings, ids, labels, n_clusters=100):
     initial_alignments = []
     for cluster_id in range(n_clusters):
         cluster_indices = np.where(cluster_labels == cluster_id)[0]
-        if len(cluster_indices) == 0:
-            continue
         if len(cluster_indices) == 1:
             initial_alignments.append(1.0)
             continue
@@ -47,12 +53,7 @@ def initial_alignment_clusters(embeddings, ids, labels, n_clusters=100):
         # multi-label case
         if len(cluster_labels_list.shape)>1:
             cluster_labels_list = [l.item() for label in cluster_labels_list for l in label]
-        label_counts = np.bincount(cluster_labels_list)
-        if len(label_counts)==1:
-            initial_alignments.append(1.0)
-            continue
-        probs = label_counts / label_counts.sum()
-        entropy = -np.sum(probs * np.log(probs + 1e-10)) / np.log(len(probs))
+        entropy = _normalized_entropy(cluster_labels_list)
         initial_alignments.append(1 - entropy)  # higher is better
     return initial_alignments
 
