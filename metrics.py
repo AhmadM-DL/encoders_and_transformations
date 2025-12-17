@@ -20,6 +20,8 @@ def _normalized_entropy(labels):
     labels = np.asarray(labels)
     if labels.size == 1:
         return 0.0
+    if not np.issubdtype(labels.dtype, np.integer):
+        labels = labels.astype(np.int64)
     counts = np.bincount(labels)
     active = counts[counts > 0]
     if len(active) <= 1:
