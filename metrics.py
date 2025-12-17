@@ -12,19 +12,70 @@ class AltMetric(Enum):
   LINEAR_CKA_METRIC = "linear_cka"
   VARIANCE_METRIC = "variance"
 
+import numpy as np
+
 def variance(embeddings, ids):
-  if debug_pdb_traces: pdb.set_trace
-  ids = np.array(ids)
-  embeddings = np.array(embeddings)
-  original_embeddings = []
-  uids = set(ids)
-  for id in uids:
-      id_original_index = np.where(ids==id)[0][0]
-      id_original_embedding = embeddings[id_original_index].copy()
-      original_embeddings.append(id_original_embedding)
-  original_embeddings = np.array(original_embeddings)
-  var = np.var(original_embeddings, axis=0)
-  return list(var)
+    ids = np.asarray(ids)
+    embeddings = np.asarray(embeddings)
+
+    original_embeddings = []
+    for uid in np.unique(ids):
+        idx = np.where(ids == uid)[0][0]
+        original_embeddings.append(embeddings[idx].copy())
+
+    original_embeddings = np.asarray(original_embeddings)
+    var = np.var(original_embeddings, axis=0)
+    return {
+        "erank": _variance_erank(var),
+        "entropy": _variance_entropy(var),
+        "gini": _variance_gini(var),
+        "top10_ratio": _variance_top10_ratio(var),
+        "tail_mass": _variance_tail_mass(var),
+        "max_median_ratio": _variance_max_median_ratio(var),
+        "spectral_flatness": _variance_spectral_flatness(var),
+    }
+
+def _variance_erank(var):
+    var = np.asarray(var)
+    var = var[var > 0]
+    p = var / var.sum()
+    return 1.0 / np.sum(p ** 2)
+
+def _variance_entropy(var):
+    var = np.asarray(var)
+    var = var[var > 0]
+    p = var / var.sum()
+    return -np.sum(p * np.log(p)) / np.log(len(p))
+
+def _variance_gini(var):
+    var = np.asarray(var)
+    var = var[var > 0]
+    d = len(var)
+    diff_sum = np.sum(np.abs(var[:, None] - var[None, :]))
+    return diff_sum / (2 * d * var.sum())
+
+def _variance_top10_ratio(var):
+    var = np.asarray(var)
+    var = var[var > 0]
+    k = max(1, int(0.1 * len(var)))
+    return np.sort(var)[-k:].sum() / var.sum()
+
+def _variance_tail_mass(var):
+    var = np.asarray(var)
+    var = var[var > 0]
+    p = var / var.sum()
+    return p[p < (1 / len(p))].sum()
+
+def _variance_max_median_ratio(var):
+    var = np.asarray(var)
+    var = var[var > 0]
+    return var.max() / np.median(var)
+
+def _variance_spectral_flatness(var):
+    var = np.asarray(var)
+    var = var[var > 0]
+    return np.exp(np.mean(np.log(var))) / np.mean(var)
+
 
 def rbf_cka(embeddings, ids, n):
     ids = np.array(ids)
