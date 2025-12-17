@@ -13,7 +13,7 @@ class AltMetric(Enum):
   LINEAR_CKA_METRIC = "linear_cka"
   VARIANCE_METRIC = "variance"
   INITIAL_ALIGNMENT_NN_METRIC = "initial_alignment_nn"
-  INITIAL_ALIGNMENT_CLUTERS_METRIC = "initial_alignment_clusters"
+  INITIAL_ALIGNMENT_CLUSTERS_METRIC = "initial_alignment_clusters"
 
 def initial_alignment_clusters(embeddings, ids, labels, n_clusters=100):
     ids = np.asarray(ids)
