@@ -12,9 +12,42 @@ class AltMetric(Enum):
   RBF_CKA_METRIC = "rbf_cka"
   LINEAR_CKA_METRIC = "linear_cka"
   VARIANCE_METRIC = "variance"
-  INITIAL_ALIGNMENT_METRIC = "initial_alignment"
+  INITIAL_ALIGNMENT_NN_METRIC = "initial_alignment_nn"
+  INITIAL_ALIGNMENT_CLUTERS_METRIC = "initial_alignment_clusters"
 
-def initial_alignment(embeddings, ids, labels, k=100):
+def initial_alignment_clusters(embeddings, ids, labels, n_clusters=100):
+    ids = np.asarray(ids)
+    labels = np.asarray(labels)
+    embeddings = np.asarray(embeddings)
+
+    original_embeddings = []
+    original_labels = []
+    for uid in np.unique(ids):
+        idx = np.where(ids == uid)[0][0]
+        original_embeddings.append(embeddings[idx].copy())
+        original_labels.append(labels[idx].copy())
+
+    original_embeddings = np.asarray(original_embeddings)
+    original_labels = np.asarray(original_labels)
+
+    kmeans = faiss.Kmeans(d=original_embeddings.shape[1], k=n_clusters, niter=20, verbose=False)
+    kmeans.train(original_embeddings)
+    cluster_labels = kmeans.index.search(original_embeddings, 1)[1].flatten()
+
+    # compute per cluster entropy!
+    initial_alignments = []
+    for cluster_id in range(n_clusters):
+        cluster_indices = np.where(cluster_labels == cluster_id)[0]
+        if len(cluster_indices) == 0:
+            continue
+        cluster_labels_list = original_labels[cluster_indices]
+        label_counts = np.bincount(cluster_labels_list)
+        probs = label_counts / label_counts.sum()
+        entropy = -np.sum(probs * np.log(probs + 1e-10)) / np.log(len(probs))
+        initial_alignments.append(1 - entropy)  # higher is better
+    return initial_alignments
+
+def initial_alignment_nn(embeddings, ids, labels, k=100):
     ids = np.asarray(ids)
     labels = np.asarray(labels)
     embeddings = np.asarray(embeddings)

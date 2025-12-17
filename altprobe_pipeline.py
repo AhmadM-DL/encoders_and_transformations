@@ -9,7 +9,8 @@ from utils import stratified_sample
 def probe(encoder_name, dataset_name, transformation, transformation_name,
           metrics= [AltMetric.LINEAR_CKA_METRIC, AltMetric.RBF_CKA_METRIC,
                     AltMetric.RANK_METRIC, AltMetric.TOP_K_RECALL_METRIC,
-                    AltMetric.VARIANCE_METRIC, AltMetric.INITIAL_ALIGNMENT_METRIC],
+                    AltMetric.VARIANCE_METRIC, AltMetric.INITIAL_ALIGNMENT_CLUSTERS_METRIC,
+                    AltMetric.INITIAL_ALIGNMENT_NN_METRIC],
            image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768,
              random_state=42, chkpt_path="./chkpt", chkpt_name="checkpoint",  verbose=True):
     
@@ -109,10 +110,15 @@ def probe(encoder_name, dataset_name, transformation, transformation_name,
     else:
         var_metric= []
 
-    if AltMetric.INITIAL_ALIGNMENT_METRIC in metrics:
-        initial_alignment_scores = initial_alignment(features, image_ids, iamge_labels, k=100)
+    if AltMetric.INITIAL_ALIGNMENT_NN_METRIC in metrics:
+        initial_alignment_nn_scores = initial_alignment_nn(features, image_ids, iamge_labels, k=100)
     else:
-        initial_alignment_scores = []
+        initial_alignment_nn_scores = []
+
+    if AltMetric.INITIAL_ALIGNMENT_CLUSTERS_METRIC in metrics:
+        initial_alignment_clusters_scores = initial_alignment_clusters(features, image_ids, iamge_labels, n_clusters=100)
+    else:
+        initial_alignment_clusters_scores = []
 
     if verbose: print("Clearing embeddings from memory ...")
     del features
@@ -141,7 +147,8 @@ def probe(encoder_name, dataset_name, transformation, transformation_name,
             'rbf_cka': rbf_cka_score,
             'linear_cka': linear_cka_score,
             "var": var_metric,
-            "initial_alignment": initial_alignment_scores,
+            "initial_alignment_nn": initial_alignment_nn_scores,
+            "initial_alignment_clusters": initial_alignment_clusters_scores,
         }
     }
 
