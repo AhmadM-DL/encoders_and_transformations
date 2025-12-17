@@ -38,7 +38,7 @@ def probe(encoder_name, dataset_name, transformation, transformation_name,
     if verbose: print("Applying transformations ...")
     all_images = []
     image_ids = []
-    iamge_labels= []
+    image_labels= []
     
     for idx, (image, label) in enumerate(sample_data):
         # Original image
@@ -48,15 +48,15 @@ def probe(encoder_name, dataset_name, transformation, transformation_name,
         all_images.append(image)
         image_ids.append(idx)
         # multiple labels 
-        if isinstance(label, list):
-            label = np.where(np.array(label)==1)[0][0]
+        if len(label)>1:
+            label = np.where(np.array(label)==1)[0]
             label = list(label)
-        iamge_labels.append(label)
+        image_labels.append(label)
         # Generate augmentations
         augmented_images = transformation([image]*n_augmentations)
         all_images.extend(augmented_images)
         image_ids.extend([idx]*n_augmentations)
-        iamge_labels.extend([label]*n_augmentations)
+        image_labels.extend([label]*n_augmentations)
         del image
         del augmented_images
 
