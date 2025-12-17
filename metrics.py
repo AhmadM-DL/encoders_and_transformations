@@ -17,11 +17,16 @@ class AltMetric(Enum):
   INITIAL_ALIGNMENT_CLUSTERS_METRIC = "initial_alignment_clusters"
 
 def _normalized_entropy(labels):
+    labels = np.asarray(labels)
+    if labels.size == 1:
+        return 0.0
     counts = np.bincount(labels)
     active = counts[counts > 0]
     if len(active) <= 1:
         return 0.0
-    return entropy(active) / np.log(len(active))
+    H = entropy(active)
+    H = max(0.0, H)
+    return H / np.log(len(active))
 
 def initial_alignment_clusters(embeddings, ids, labels, n_clusters=100):
     ids = np.asarray(ids)
@@ -46,6 +51,8 @@ def initial_alignment_clusters(embeddings, ids, labels, n_clusters=100):
     initial_alignments = []
     for cluster_id in range(n_clusters):
         cluster_indices = np.where(cluster_labels == cluster_id)[0]
+        if len(cluster_indices) == 0:
+            continue
         if len(cluster_indices) == 1:
             initial_alignments.append(1.0)
             continue
