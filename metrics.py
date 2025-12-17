@@ -41,12 +41,16 @@ def initial_alignment_clusters(embeddings, ids, labels, n_clusters=100):
         if len(cluster_indices) == 0:
             continue
         cluster_labels_list = original_labels[cluster_indices]
+        # multi-label case
+        if isinstance(cluster_labels_list[0], list):
+            cluster_labels_list = [label for label in cluster_labels_list if isinstance(label, list)]
         label_counts = np.bincount(cluster_labels_list)
         probs = label_counts / label_counts.sum()
         entropy = -np.sum(probs * np.log(probs + 1e-10)) / np.log(len(probs))
         initial_alignments.append(1 - entropy)  # higher is better
     return initial_alignments
 
+# to do adapt to multi-class
 def initial_alignment_nn(embeddings, ids, labels, k=100):
     ids = np.asarray(ids)
     labels = np.asarray(labels)

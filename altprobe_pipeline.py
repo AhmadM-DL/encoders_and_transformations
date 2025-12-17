@@ -47,6 +47,10 @@ def probe(encoder_name, dataset_name, transformation, transformation_name,
         image = image / 255.0
         all_images.append(image)
         image_ids.append(idx)
+        # multiple labels 
+        if isinstance(label, list):
+            label = np.where(np.array(label)==1)[0][0]
+            label = list(label)
         iamge_labels.append(label)
         # Generate augmentations
         augmented_images = transformation([image]*n_augmentations)
