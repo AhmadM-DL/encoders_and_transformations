@@ -61,3 +61,26 @@ def already_downloaded(output_dir, output_filename):
         return True
     else:
         return False
+
+import random
+from collections import defaultdict
+
+def stratified_sample(dataset, sample_size):
+    class_indices = defaultdict(list)
+    for i, (_, label) in tqdm(enumerate(dataset), total=len(dataset), desc="Indexing classes"):
+        class_indices[label].append(i)
+    total_size = len(dataset)
+    sampled_indices = []
+    for label, indices in class_indices.items():
+        n_samples = max(
+            1,
+            round(sample_size * len(indices) / total_size)
+        )
+        sampled_indices.extend(
+            random.sample(indices, min(n_samples, len(indices)))
+        )
+    sampled_indices = random.sample(
+        sampled_indices,
+        min(sample_size, len(sampled_indices))
+    )
+    return [dataset[i] for i in sampled_indices]

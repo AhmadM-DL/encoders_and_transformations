@@ -4,6 +4,7 @@ from metrics import *
 from metrics import AltMetric
 from encoders import get_features, get_encoder
 from datasets import get_dataset
+from utils import stratified_sample
 
 def probe(encoder_name, dataset_name, transformation, transformation_name, metrics= [AltMetric.LINEAR_CKA_METRIC, AltMetric.RBF_CKA_METRIC, AltMetric.RANK_METRIC, AltMetric.TOP_K_RECALL_METRIC, AltMetric.VARIANCE_METRIC], image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768, random_state=42, chkpt_path="./chkpt", chkpt_name="checkpoint",  verbose=True):
     
@@ -19,10 +20,9 @@ def probe(encoder_name, dataset_name, transformation, transformation_name, metri
     if not os.path.exists(chkpt_path):
         os.mkdir(chkpt_path)
     
-    # Take a random subset
+    # Take a stratified random subset
     if verbose: print(f"Sampling {sample_size} images ...")
-    sample_indices = random.sample(range(len(dataset)), min(sample_size, len(dataset)))
-    sample_data = [dataset[i] for i in sample_indices]
+    sample_data = stratified_sample(dataset, sample_size)
 
     if verbose: print("Clearing dataset from memory ...")
     del dataset
