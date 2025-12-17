@@ -40,10 +40,13 @@ def initial_alignment_clusters(embeddings, ids, labels, n_clusters=100):
         cluster_indices = np.where(cluster_labels == cluster_id)[0]
         if len(cluster_indices) == 0:
             continue
+        if len(cluster_indices) == 1:
+            initial_alignments.append(1.0)
+            continue
         cluster_labels_list = original_labels[cluster_indices]
         # multi-label case
-        if len(cluster_labels_list[0])>1:
-            cluster_labels_list = [l for label in cluster_labels_list for l in label]
+        if len(cluster_labels_list.shape)>1:
+            cluster_labels_list = [l.item() for label in cluster_labels_list for l in label]
         label_counts = np.bincount(cluster_labels_list)
         probs = label_counts / label_counts.sum()
         entropy = -np.sum(probs * np.log(probs + 1e-10)) / np.log(len(probs))
