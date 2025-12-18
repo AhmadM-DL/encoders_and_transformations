@@ -114,42 +114,48 @@
             "type": "CNN",
             "input_size": 224,
             "params": "25.6M",
-            "active": true
+            "active": true,
+            "output_size": 2048
         },
         {
             "id": "google/efficientnet-b0",
             "type": "CNN",
             "input_size": 224,
             "params": "5.3M",
-            "active": true
+            "active": true,
+            "output_size": 1280
         },
         {
             "id": "facebook/convnext-base-224",
             "type": "CNN",
             "input_size": 224,
             "params": "89M",
-            "active": true
+            "active": true,
+            "output_size": 1024
         },
         {
             "id": "google/vit-base-patch16-224-in21k",
             "type": "Transformer",
             "input_size": 224,
             "params": "86.4M",
-            "active": true
+            "active": true,
+            "output_size": 768
         },
         {
             "id": "facebook/deit-base-distilled-patch16-224",
             "type": "Transformer",
             "input_size": 224,
             "params": "86M",
-            "active": true
+            "active": true,
+            "output_size": 768
         },
         {
             "id": "microsoft/swin-base-patch4-window7-224",
             "type": "Transformer",
             "input_size": 224,
             "params": "87.8M",
-            "active": true
+            "active": true,
+            "output_size": 1024 
         },
         {
             "id": "custom/moco-v3-vit-b",

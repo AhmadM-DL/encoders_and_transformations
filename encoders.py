@@ -4,6 +4,8 @@ from torch import no_grad
 import torchvision
 import torch
 import timm
+from torchvision import transforms
+from PIL import Image
 
 def get_encoder(encoder_id, device="cuda"):
 
@@ -36,7 +38,7 @@ def get_encoder(encoder_id, device="cuda"):
                 print("Timm model or checkpoint architecture changed")
             model.to(device)
             encoder = model
-            image_processor = ViTImageProcessor()
+            image_processor = _MocoImageProcessor()
 
         if "simclr" in encoder_id.lower():
             checkpoint_url = "https://github.com/AhmadM-DL/SimCLR-ImageNet1k-Resnet50-weights/raw/refs/heads/main/simclr_resnet50_1x_sk0.pth"
@@ -130,6 +132,38 @@ def get_features(encoder, X, target_dim, device="cuda"):
             raise Exception(f"The encoder {str(type(encoder))} is not supported!")
 
     return features
+
+class _MocoImageProcessor:
+    def __init__(
+        self,
+        image_size=224,
+        resize_size=256,
+        mean=(0.485, 0.456, 0.406),
+        std=(0.229, 0.224, 0.225),
+    ):
+        self.image_size = image_size
+        self.resize_size = resize_size
+
+        self.transform = transforms.Compose([
+            transforms.Resize(resize_size, interpolation=transforms.InterpolationMode.BICUBIC),
+            transforms.CenterCrop(image_size),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=mean, std=std),
+        ])
+
+    def __call__(self, images, return_tensors="pt"):
+        if isinstance(images, Image.Image):
+            images = [images]
+        elif torch.is_tensor(images):
+            # already tensor [C,H,W] or [B,C,H,W]
+            if images.ndim == 3:
+                images = images.unsqueeze(0)
+            return {"pixel_values": images}
+        pixel_values = torch.stack([self.transform(img) for img in images])
+        if return_tensors == "pt":
+            return {"pixel_values": pixel_values}
+        raise ValueError(f"Unsupported return_tensors={return_tensors}")
+
 
 def _test_encoder(encoder_id):
     batch_size = 32
