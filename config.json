@@ -187,7 +187,7 @@
             "input_size": 224,
             "params": "86.6M",
             "active": true,
-            "output_size": 768,
+            "output_size": 768
         },
         {
             "id": "custom/simclr-resnet-50",
