@@ -28,7 +28,10 @@ def load_checkpoint(path, classifier, optimizer):
 
 def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
           encoder_target_dim=768, num_workers=4, learning_rate=1e-3,
-          early_stopping=True, random_state=42, chkpt_path="./chkpt",
+          early_stopping_based_on_validation=False,
+          early_stopping_based_on_test=True,
+          random_state=42, chkpt_path="./chkpt",
+          test_every_x_steps=1, validate=False,
           verbose=True):
     
     # Set random seed for reproducibility
@@ -112,59 +115,63 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
         train_loss = sum(train_losses) / len(train_losses)
         tqdm.write(f"Epoch {epoch+1}/{n_epochs}, Train Loss: {train_loss:.4f}")
 
-        # Validation loop
-        classifier.eval()
-        val_losses = []
-        val_preds = []
-        val_labels = []
-        pbar = tqdm(val_dataloader, desc=f'Validation Epoch {epoch+1}/{n_epochs}')
-        for batch in pbar:
-            inputs, labels = batch
-            inputs = inputs.to(encoder.device)
-            labels = labels.to(encoder.device)  
-            
-            with torch.no_grad():
-                features = get_features(encoder, inputs, encoder_target_dim, device="cuda")
-                outputs = classifier(features)
+        if validate:
+            # Validation loop
+            classifier.eval()
+            val_losses = []
+            val_preds = []
+            val_labels = []
+            pbar = tqdm(val_dataloader, desc=f'Validation Epoch {epoch+1}/{n_epochs}')
+            for batch in pbar:
+                inputs, labels = batch
+                inputs = inputs.to(encoder.device)
+                labels = labels.to(encoder.device)  
+                
+                with torch.no_grad():
+                    features = get_features(encoder, inputs, encoder_target_dim, device="cuda")
+                    outputs = classifier(features)
 
-            loss = criterion(outputs, labels)
-            val_losses.append(loss.item())
-            pbar.set_postfix({"Val Loss": loss.item()})
+                loss = criterion(outputs, labels)
+                val_losses.append(loss.item())
+                pbar.set_postfix({"Val Loss": loss.item()})
 
-            if train_dataset.is_multilabel():
-                predicted = (torch.sigmoid(outputs) > 0.5).int()
-                val_preds.extend(predicted.flatten().cpu().numpy())
-                val_labels.extend(labels.flatten().cpu().numpy())
-            else:
-                _, predicted = torch.max(outputs.data, 1)
-                val_preds.extend(predicted.cpu().numpy())
-                val_labels.extend(labels.cpu().numpy())
+                if train_dataset.is_multilabel():
+                    predicted = (torch.sigmoid(outputs) > 0.5).int()
+                    val_preds.extend(predicted.flatten().cpu().numpy())
+                    val_labels.extend(labels.flatten().cpu().numpy())
+                else:
+                    _, predicted = torch.max(outputs.data, 1)
+                    val_preds.extend(predicted.cpu().numpy())
+                    val_labels.extend(labels.cpu().numpy())
 
-        val_loss = sum(val_losses) / len(val_losses)
-        val_acc = 100.0 * (np.array(val_preds) == np.array(val_labels)).sum() / len(val_labels)
-        tqdm.write(f"Epoch {epoch+1}/{n_epochs}, Val Loss: {val_loss:.4f}, Val Accuracy: {val_acc:.2f}%")
+            val_loss = sum(val_losses) / len(val_losses)
+            val_acc = 100.0 * (np.array(val_preds) == np.array(val_labels)).sum() / len(val_labels)
+            tqdm.write(f"Epoch {epoch+1}/{n_epochs}, Val Loss: {val_loss:.4f}, Val Accuracy: {val_acc:.2f}%")
 
-        # Early stopping
-        if early_stopping:
-            recent_accs = [val_record["val_accuracy"] for val_record in history[-5:]]
-            recent_accs.append(val_acc)
-            # If no improvement in last 6 epochs, stop training
-            # 6 epochs to have at least one test iteration
-            if (len(recent_accs) >= 6) and (max(recent_accs) - min(recent_accs) < 0.05):
-                print("Early stopping triggered. No improvement in validation accuracy.")
-                history.append({
-                    "epoch": epoch + 1, 
-                    "train_loss": train_loss,
-                    "val_loss": val_loss,
-                    "val_accuracy": val_acc,
-                    "test_loss": None,
-                    "test_accuracy": None
-                })
-                save_checkpoint(chkpt_filepath, classifier, optimizer, epoch + 1, history, hyperparams, early_stopped=True)
-                break
+            # Early stopping
+            if early_stopping_based_on_validation:
+                recent_accs = [val_record["val_accuracy"] for val_record in history[-5:]]
+                recent_accs.append(val_acc)
+                # If no improvement in last 6 epochs, stop training
+                # 6 epochs to have at least one test iteration
+                if (len(recent_accs) >= 6) and (max(recent_accs) - min(recent_accs) < 0.05):
+                    print("Early stopping triggered. No improvement in validation accuracy.")
+                    history.append({
+                        "epoch": epoch + 1, 
+                        "train_loss": train_loss,
+                        "val_loss": val_loss,
+                        "val_accuracy": val_acc,
+                        "test_loss": None,
+                        "test_accuracy": None
+                    })
+                    save_checkpoint(chkpt_filepath, classifier, optimizer, epoch + 1, history, hyperparams, early_stopped=True)
+                    break
+        else:
+            val_loss = None
+            val_acc = None
 
         # Testing loop
-        if (epoch+1) % 5 == 0:
+        if (epoch+1) % test_every_x_steps == 0:
             classifier.eval()
             test_losses = []
             test_preds = []
@@ -195,6 +202,24 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
             test_loss = sum(test_losses) / len(test_losses)
             test_acc = 100.0 * (np.array(test_preds) == np.array(test_labels)).sum() / len(test_labels)
             tqdm.write(f"Epoch {epoch+1}/{n_epochs}, Test Loss: {test_loss:.4f}, Test Accuracy: {test_acc:.2f}%")
+            
+            # Early stopping
+            if early_stopping_based_on_test:
+                recent_accs = [test_record["test_accuracy"] for test_record in history[-5:]]
+                recent_accs.append(test_acc)
+                # If no improvement in last 6 epochs, stop training
+                if (len(recent_accs) >= 6) and (max(recent_accs) - min(recent_accs) < 0.05):
+                    print("Early stopping triggered. No improvement in test accuracy.")
+                    history.append({
+                        "epoch": epoch + 1, 
+                        "train_loss": train_loss,
+                        "val_loss": val_loss,
+                        "val_accuracy": val_acc,
+                        "test_loss": test_loss,
+                        "test_accuracy": test_acc
+                    })
+                    save_checkpoint(chkpt_filepath, classifier, optimizer, epoch + 1, history, hyperparams, early_stopped=True)
+                    break
         else:
             test_loss = None
             test_acc = None
