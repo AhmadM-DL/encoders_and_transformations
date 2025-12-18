@@ -28,7 +28,8 @@ def _normalized_entropy(labels):
         return 0.0
     H = entropy(active)
     H = max(0.0, H)
-    return H / np.log(len(active))
+    Hn = H / np.log(len(active))
+    return max(0.0, min(1.0, Hn))
 
 def initial_alignment_clusters(embeddings, ids, labels, n_clusters=100):
     ids = np.asarray(ids)
