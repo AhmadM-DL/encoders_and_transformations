@@ -38,7 +38,7 @@ def get_encoder(encoder_id, device="cuda"):
                 print("Timm model or checkpoint architecture changed")
             model.to(device)
             encoder = model
-            image_processor = _MocoImageProcessor()
+            image_processor = _CustomImageProcessor()
 
         if "simclr" in encoder_id.lower():
             checkpoint_url = "https://github.com/AhmadM-DL/SimCLR-ImageNet1k-Resnet50-weights/raw/refs/heads/main/simclr_resnet50_1x_sk0.pth"
@@ -52,7 +52,7 @@ def get_encoder(encoder_id, device="cuda"):
         if "eva" in encoder_id.lower():
             encoder = timm.create_model('eva02_base_patch14_224.mim_in22k', pretrained=True)
             encoder= encoder.to(device)
-            image_processor = ViTImageProcessor()
+            image_processor = _CustomImageProcessor()
         
     elif 'dpt' in encoder_id.lower():
         image_processor = AutoImageProcessor.from_pretrained(encoder_id, use_fast=True)
@@ -133,7 +133,7 @@ def get_features(encoder, X, target_dim, device="cuda"):
 
     return features
 
-class _MocoImageProcessor:
+class _CustomImageProcessor:
     def __init__(
         self,
         image_size=224,

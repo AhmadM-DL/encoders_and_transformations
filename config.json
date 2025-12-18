@@ -162,49 +162,56 @@
             "type": "SSL",
             "input_size": 224,
             "params": "86.6M",
-            "active": true
+            "active": true,
+            "output_size": 768 
         },
         {
             "id": "custom/byol-resnet50",
             "type": "SSL",
             "input_size": 224,
             "params": "25.6M",
-            "active": true
+            "active": true,
+            "output_size": 2048
         },
         {
             "id": "facebook/vit-mae-base",
             "type": "SSL",
             "input_size": 224,
             "params": "112M",
-            "active": true
+            "active": true,
+            "output_size": 768
         },
         {
             "id": "facebook/dinov2-base",
             "type": "SSL",
             "input_size": 224,
             "params": "86.6M",
-            "active": true
+            "active": true,
+            "output_size": 768,
         },
         {
             "id": "custom/simclr-resnet-50",
             "type": "SSL",
             "input_size": 224,
             "params": "24M",
-            "active": true
+            "active": true,
+            "output_size": 2048
         },
         {
             "id": "openai/clip-vit-base-patch32",
             "type": "Foundation",
             "input_size": 224,
             "params": "88M",
-            "active": true
+            "active": true,
+            "output_size": 768
         },
         {
             "id": "Intel/dpt-swinv2-base-384",
             "type": "Specialized",
             "input_size": 384,
             "params": "101M",
-            "active": true
+            "active": true,
+            "output_size": 1024
         },
         {
             "id": "custom/eva02_base_patch14_224.mim_in22k",
