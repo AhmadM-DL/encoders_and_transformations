@@ -218,7 +218,8 @@
             "type": "SSL",
             "input_size": 224,
             "params": "85.8",
-            "active": true
+            "active": true,
+            "output_size": 768
         }
     ]
 }
