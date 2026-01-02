@@ -52,6 +52,9 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
     if verbose: print("Loading model ...")
     encoder, processor = get_encoder(encoder_name)
 
+    # Get device
+    device = next(encoder.parameters()).device
+
     # Get datasets
     if verbose: print("Loading dataset ...")
     train_dataset = get_dataset(dataset_name, "train", processor)
@@ -67,7 +70,7 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
     # Define classifier
     if verbose: print("Defining classifier ...")
     classifier = torch.nn.Linear(encoder_target_dim, train_dataset.num_labels())
-    classifier.to(encoder.device)
+    classifier.to(device)
 
     # Define optimizer
     if verbose: print("Defining optimizer ...")
@@ -100,10 +103,10 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
         pbar = tqdm(train_dataloader, desc=f'Epoch {epoch+1}/{n_epochs}')
         for batch in pbar:
             inputs, labels = batch
-            inputs = inputs.to(encoder.device)
-            labels = labels.to(encoder.device)
+            inputs = inputs.to(device)
+            labels = labels.to(device)
             with torch.no_grad():
-                features = get_features(encoder, inputs, encoder_target_dim, device="cuda")
+                features = get_features(encoder, inputs, encoder_target_dim, device=device)
             outputs = classifier(features)
             loss = criterion(outputs, labels)
             optimizer.zero_grad()
@@ -124,11 +127,11 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
             pbar = tqdm(val_dataloader, desc=f'Validation Epoch {epoch+1}/{n_epochs}')
             for batch in pbar:
                 inputs, labels = batch
-                inputs = inputs.to(encoder.device)
-                labels = labels.to(encoder.device)  
+                inputs = inputs.to(device)
+                labels = labels.to(device)  
                 
                 with torch.no_grad():
-                    features = get_features(encoder, inputs, encoder_target_dim, device="cuda")
+                    features = get_features(encoder, inputs, encoder_target_dim, device=device)
                     outputs = classifier(features)
 
                 loss = criterion(outputs, labels)
@@ -179,11 +182,11 @@ def probe(encoder_name, dataset_name, batch_size= 64, n_epochs= 20,
             pbar = tqdm(test_dataloader, desc=f'Testing Epoch {epoch+1}/{n_epochs}')
             for batch in pbar:
                 inputs, labels = batch
-                inputs = inputs.to(encoder.device)
-                labels = labels.to(encoder.device)
+                inputs = inputs.to(device)
+                labels = labels.to(device)
                 
                 with torch.no_grad():
-                    features = get_features(encoder, inputs, encoder_target_dim, device="cuda")
+                    features = get_features(encoder, inputs, encoder_target_dim, device=device)
                     outputs = classifier(features)
 
                 loss = criterion(outputs, labels)
