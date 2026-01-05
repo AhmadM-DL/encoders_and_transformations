@@ -45,16 +45,22 @@ def probe(encoder_name, dataset_name, transformation, transformation_name,
         image = image.resize((image_size, image_size))
         image = np.asarray(image)
         image = image / 255.0
+        # Generate augmentations
+        augmented_images = transformation([image]*n_augmentations)
+        # Back to int8
+        image = np.uint8(image * 255)
+        augmented_images = [np.uint8(img * 255) for img in augmented_images]
+        # Add original image to list
         all_images.append(image)
         image_ids.append(idx)
         image_labels.append(label)
-        # Generate augmentations
-        augmented_images = transformation([image]*n_augmentations)
+        # Add augmentations to list
         all_images.extend(augmented_images)
         image_ids.extend([idx]*n_augmentations)
         image_labels.extend([label]*n_augmentations)
         del image
         del augmented_images
+        gc.collect()
 
     if verbose: print("Clearing sample from memory ...")
     del sample_data
