@@ -66,3 +66,24 @@ def _wrap_transformation(transformation):
         transformed_images_float = [img.astype(np.float32) / 255.0 for img in transformed_images]
         return transformed_images_float
     return _wrapped_transform
+
+def _test_transformations():
+    transformations = [
+        {"id": "blur", "sigma_min": 0.1, "sigma_max": 0.5},
+        {"id": "noise", "scale": 0.05, "per_channel": True},
+        {"id": "jigsaw", "nb_rows_min": 2, "nb_cols_min": 2, "nb_rows_max": 4, "nb_cols_max": 4, "max_steps_min": 10, "max_steps_max": 20},
+        {"id": "kmeanscolorquantization", "n_colors_min": 2, "n_colors_max": 4},
+        {"id": "saltandpepper", "p_min": 0.01, "p_max": 0.05, "per_channel": True},
+        {"id": "coarsedropout", "p_min": 0.01, "p_max": 0.05, "size_percent_min": 0.01, "size_percent_max": 0.05, "per_channel": True},
+        {"id": "multiplyhue", "hue_min": -0.1, "hue_max": 0.1},
+        {"id": "affine", "scale_min": 0.9, "scale_max": 1.1, "rotate_min": -10, "rotate_max": 10, "shear_min": -10, "shear_max": 10}
+    ]
+    base_iamge = plt.imread("luna.jpg")
+    base_iamge = np.array(base_iamge)
+    base_iamge = base_iamge / 255.0
+    transformed_images = []
+    for transformation in transformations:
+        transformed_images.append(get_transformation(transformation)([base_iamge]))
+    return transformed_images
+
+
