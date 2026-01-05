@@ -60,7 +60,6 @@ def probe(encoder_name, dataset_name, transformation, transformation_name,
         image_labels.extend([label]*n_augmentations)
         del image
         del augmented_images
-        gc.collect()
 
     if verbose: print("Clearing sample from memory ...")
     del sample_data
