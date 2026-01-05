@@ -1,4 +1,5 @@
 import imgaug.augmenters as iaa
+from PIL import Image
 import numpy as np
 
 def get_transformation(transformation_obj):
@@ -78,7 +79,7 @@ def _test_transformations():
         {"id": "multiplyhue", "hue_min": -0.1, "hue_max": 0.1},
         {"id": "affine", "scale_min": 0.9, "scale_max": 1.1, "rotate_min": -10, "rotate_max": 10, "shear_min": -10, "shear_max": 10}
     ]
-    base_iamge = plt.imread("luna.jpg")
+    base_iamge = Image.open("luna.jpg")
     base_iamge = np.array(base_iamge)
     base_iamge = base_iamge / 255.0
     transformed_images = []
