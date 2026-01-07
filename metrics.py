@@ -16,7 +16,7 @@ class AltMetric(Enum):
   INITIAL_ALIGNMENT_NN_METRIC = "initial_alignment_nn"
   INITIAL_ALIGNMENT_CLUSTERS_METRIC = "initial_alignment_clusters"
   INITIAL_ALIGNMENT_CLUSTERS_AUC_METRIC = "initial_alignment_clusters_auc"
-  
+
 def _normalized_entropy(labels):
     labels = np.asarray(labels)
     if labels.size == 1:
@@ -67,7 +67,7 @@ def initial_alignment_clusters_auc(embeddings, ids, labels):
             if len(cluster_labels_list.shape)>1:
                 cluster_labels_list = [l.item() for label in cluster_labels_list for l in label]
             entropy = _normalized_entropy(cluster_labels_list)
-            initial_alignments[K].append(1 - entropy)  # higher is better
+            initial_alignments[k].append(1 - entropy)  # higher is better
     return initial_alignments
 
 def initial_alignment_clusters(embeddings, ids, labels, n_clusters=100):
