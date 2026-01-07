@@ -152,18 +152,29 @@ class _CustomImageProcessor:
         ])
 
     def __call__(self, images, return_tensors="pt"):
-        if isinstance(images, Image.Image):
+        if isinstance(images, (Image.Image, np.ndarray)):
             images = [images]
-        elif torch.is_tensor(images):
-            # already tensor [C,H,W] or [B,C,H,W]
-            if images.ndim == 3:
-                images = images.unsqueeze(0)
-            return {"pixel_values": images}
-        pixel_values = torch.stack([self.transform(img) for img in images])
+        elif isinstance(images, (list, tuple)):
+            if not all(isinstance(img, (Image.Image, np.ndarray)) for img in images):
+                raise ValueError("All images must be PIL.Image or numpy.ndarray")
+            images = list(images)
+        else:
+            raise ValueError(f"Unsupported input type: {type(images)}")
+        processed = []
+        for img in images:
+            if isinstance(img, np.ndarray):
+                if img.ndim == 2:  # grayscale
+                    img = Image.fromarray(img, mode="L")
+                elif img.ndim == 3:
+                    img = Image.fromarray(img)
+                else:
+                    raise ValueError(f"Invalid ndarray shape: {img.shape}")
+            tensor = self.transform(img)
+            processed.append(tensor)
+        pixel_values = torch.stack(processed)
         if return_tensors == "pt":
             return {"pixel_values": pixel_values}
         raise ValueError(f"Unsupported return_tensors={return_tensors}")
-
 
 def _test_encoder(encoder_id):
     batch_size = 32
