@@ -32,11 +32,21 @@ def _normalized_entropy(labels):
     Hn = H / np.log(len(active))
     return max(0.0, min(1.0, Hn))
 
+import numpy as np
+import faiss
+from scipy.stats import entropy
+
+def _binary_entropy(p):
+    if p == 0 or p == 1:
+        return 0.0
+    return -p * np.log(p) - (1 - p) * np.log(1 - p)
+
 def initial_alignment_clusters_auc(embeddings, ids, labels):
     ids = np.asarray(ids)
     labels = np.asarray(labels)
     embeddings = np.asarray(embeddings)
     ks = [1, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+
     uniq_embeddings = []
     uniq_labels = []
     for uid in np.unique(ids):
@@ -46,10 +56,23 @@ def initial_alignment_clusters_auc(embeddings, ids, labels):
     X = np.asarray(uniq_embeddings)
     Y = np.asarray(uniq_labels)
     N = len(Y)
-    label_counts = np.bincount(Y.astype(int))
-    H_Y = entropy(label_counts)
+
+    multi_label = len(Y.shape) > 1
+    num_labels = Y.shape[1] if multi_label else 1
+
+    if multi_label:
+        H_list = []
+        for l in range(num_labels):
+            p = np.mean(Y[:, l])
+            H_list.append(_binary_entropy(p))
+        H_Y = np.mean(H_list)
+    else:
+        label_counts = np.bincount(Y.astype(int))
+        H_Y = entropy(label_counts)
+
     if H_Y == 0:
         return {k: 1.0 for k in ks}
+
     alignments = {}
     for k in ks:
         kmeans = faiss.Kmeans(
@@ -61,19 +84,32 @@ def initial_alignment_clusters_auc(embeddings, ids, labels):
         )
         kmeans.train(X)
         cluster_ids = kmeans.index.search(X, 1)[1].flatten()
+
         H_Y_given_C = 0.0
         for c in range(k):
             idx = np.where(cluster_ids == c)[0]
             if len(idx) == 0:
                 continue
             labels_c = Y[idx]
-            counts_c = np.bincount(labels_c.astype(int))
-            H_c = entropy(counts_c)
+
+            if multi_label:
+                H_list = []
+                for l in range(num_labels):
+                    p = np.mean(labels_c[:, l])
+                    H_list.append(_binary_entropy(p))
+                H_c = np.mean(H_list)
+            else:
+                counts_c = np.bincount(labels_c.astype(int))
+                H_c = entropy(counts_c)
+
             H_Y_given_C += (len(idx) / N) * H_c
+
         alignment = 1.0 - H_Y_given_C / H_Y
         alignments[k] = max(0.0, min(1.0, alignment))
+
     return alignments
 
+# to do adapt to multi-class
 def initial_alignment_clusters(embeddings, ids, labels, n_clusters=100):
     ids = np.asarray(ids)
     labels = np.asarray(labels)
@@ -103,8 +139,8 @@ def initial_alignment_clusters(embeddings, ids, labels, n_clusters=100):
             initial_alignments.append(1.0)
             continue
         cluster_labels_list = original_labels[cluster_indices]
-        # multi-label case
-        if len(cluster_labels_list.shape)>1:
+        if len(cluster_labels_list.shape)>1: # multi-label case
+            # to do adapt to multi-class
             cluster_labels_list = [l.item() for label in cluster_labels_list for l in label]
         entropy = _normalized_entropy(cluster_labels_list)
         initial_alignments.append(1 - entropy)  # higher is better
