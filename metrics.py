@@ -60,7 +60,7 @@ def initial_alignment_clusters_auc(embeddings, ids, labels):
             if len(cluster_indices) == 0:
                 continue
             if len(cluster_indices) == 1:
-                initial_alignments[K].append(1.0)
+                initial_alignments[k].append(1.0)
                 continue
             cluster_labels_list = original_labels[cluster_indices]
             # multi-label case
