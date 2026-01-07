@@ -15,7 +15,8 @@ class AltMetric(Enum):
   VARIANCE_METRIC = "variance"
   INITIAL_ALIGNMENT_NN_METRIC = "initial_alignment_nn"
   INITIAL_ALIGNMENT_CLUSTERS_METRIC = "initial_alignment_clusters"
-
+  INITIAL_ALIGNMENT_CLUSTERS_AUC_METRIC = "initial_alignment_clusters_auc"
+  
 def _normalized_entropy(labels):
     labels = np.asarray(labels)
     if labels.size == 1:
@@ -30,6 +31,44 @@ def _normalized_entropy(labels):
     H = max(0.0, H)
     Hn = H / np.log(len(active))
     return max(0.0, min(1.0, Hn))
+
+def initial_alignment_clusters_auc(embeddings, ids, labels):
+    ids = np.asarray(ids)
+    labels = np.asarray(labels)
+    embeddings = np.asarray(embeddings)
+
+    original_embeddings = []
+    original_labels = []
+    for uid in np.unique(ids):
+        idx = np.where(ids == uid)[0][0]
+        original_embeddings.append(embeddings[idx].copy())
+        original_labels.append(labels[idx].copy())
+
+    original_embeddings = np.asarray(original_embeddings)
+    original_labels = np.asarray(original_labels)
+    ks= [1, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    
+    initial_alignments = {}
+    for k in ks:
+        kmeans = faiss.Kmeans(d=original_embeddings.shape[1], k=k, niter=20, verbose=False)
+        kmeans.train(original_embeddings)
+        cluster_labels = kmeans.index.search(original_embeddings, 1)[1].flatten()
+        
+        initial_alignments[k] = []
+        for cluster_id in range(k):
+            cluster_indices = np.where(cluster_labels == cluster_id)[0]
+            if len(cluster_indices) == 0:
+                continue
+            if len(cluster_indices) == 1:
+                initial_alignments[K].append(1.0)
+                continue
+            cluster_labels_list = original_labels[cluster_indices]
+            # multi-label case
+            if len(cluster_labels_list.shape)>1:
+                cluster_labels_list = [l.item() for label in cluster_labels_list for l in label]
+            entropy = _normalized_entropy(cluster_labels_list)
+            initial_alignments[K].append(1 - entropy)  # higher is better
+    return initial_alignments
 
 def initial_alignment_clusters(embeddings, ids, labels, n_clusters=100):
     ids = np.asarray(ids)

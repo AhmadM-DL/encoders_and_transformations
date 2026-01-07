@@ -125,6 +125,11 @@ def probe(encoder_name, dataset_name, transformation, transformation_name,
     else:
         initial_alignment_clusters_scores = []
 
+    if AltMetric.INITIAL_ALIGNMENT_CLUSTERS_AUC_METRIC in metrics:
+        initial_alignment_clusters_auc_scores = initial_alignment_clusters_auc(features, image_ids, image_labels)
+    else:
+        initial_alignment_clusters_auc_scores = {}
+
     if verbose: print("Clearing embeddings from memory ...")
     del features
     gc.collect()
@@ -154,6 +159,7 @@ def probe(encoder_name, dataset_name, transformation, transformation_name,
             "var": var_metric,
             "initial_alignment_nn": initial_alignment_nn_scores,
             "initial_alignment_clusters": initial_alignment_clusters_scores,
+            "initial_alignment_clusters_auc": initial_alignment_clusters_auc_scores,
         }
     }
 
