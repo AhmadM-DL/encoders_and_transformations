@@ -6,6 +6,7 @@ import torch
 import timm
 from torchvision import transforms
 from PIL import Image
+import numpy as np
 
 def get_encoder(encoder_id, device="cuda"):
 
