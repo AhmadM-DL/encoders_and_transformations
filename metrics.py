@@ -186,6 +186,7 @@ def variance(embeddings, ids):
     original_embeddings = np.asarray(original_embeddings)
     var = np.var(original_embeddings, axis=0)
     return {
+        "variance": var,
         "erank": _variance_erank(var),
         "entropy": _variance_entropy(var),
         "gini": _variance_gini(var),
