@@ -12,7 +12,8 @@ def probe(encoder_name, dataset_name, transformation, transformation_name,
                     AltMetric.VARIANCE_METRIC, AltMetric.INITIAL_ALIGNMENT_CLUSTERS_METRIC,
                     AltMetric.INITIAL_ALIGNMENT_NN_METRIC],
            image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768,
-             random_state=42, chkpt_path="./chkpt", chkpt_name="checkpoint",  verbose=True):
+             random_state=42, ks= None,
+             chkpt_path="./chkpt", chkpt_name="checkpoint",  verbose=True):
     
     encoder, processor = get_encoder(encoder_name)
     dataset = get_dataset(dataset_name, 'train', processor=None)
@@ -125,7 +126,7 @@ def probe(encoder_name, dataset_name, transformation, transformation_name,
     else:
         initial_alignment_clusters_scores = []
 
-    if AltMetric.INITIAL_ALIGNMENT_CLUSTERS_AUC_METRIC in metrics:
+    if AltMetric.INITIAL_ALIGNMENT_CLUSTERS_AUC_METRIC in metrics: 
         initial_alignment_clusters_auc_scores = initial_alignment_clusters_auc(features, image_ids, image_labels)
     else:
         initial_alignment_clusters_auc_scores = {}

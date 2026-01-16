@@ -41,11 +41,10 @@ def _binary_entropy(p):
         return 0.0
     return -p * np.log(p) - (1 - p) * np.log(1 - p)
 
-def initial_alignment_clusters_auc(embeddings, ids, labels):
+def initial_alignment_clusters_auc(embeddings, ids, labels, ks):
     ids = np.asarray(ids)
     labels = np.asarray(labels)
     embeddings = np.asarray(embeddings)
-    ks = [1, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
     uniq_embeddings = []
     uniq_labels = []
