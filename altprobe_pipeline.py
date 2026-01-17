@@ -127,7 +127,7 @@ def probe(encoder_name, dataset_name, transformation, transformation_name,
         initial_alignment_clusters_scores = []
 
     if AltMetric.INITIAL_ALIGNMENT_CLUSTERS_AUC_METRIC in metrics: 
-        initial_alignment_clusters_auc_scores = initial_alignment_clusters_auc(features, image_ids, image_labels)
+        initial_alignment_clusters_auc_scores = initial_alignment_clusters_auc(features, image_ids, image_labels, ks)
     else:
         initial_alignment_clusters_auc_scores = {}
 
