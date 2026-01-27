@@ -10,7 +10,8 @@ def probe(encoder_name, dataset_name, transformation, transformation_name,
           metrics= [AltMetric.LINEAR_CKA_METRIC, AltMetric.RBF_CKA_METRIC,
                     AltMetric.RANK_METRIC, AltMetric.TOP_K_RECALL_METRIC,
                     AltMetric.VARIANCE_METRIC, AltMetric.INITIAL_ALIGNMENT_CLUSTERS_METRIC,
-                    AltMetric.INITIAL_ALIGNMENT_NN_METRIC],
+                    AltMetric.INITIAL_ALIGNMENT_NN_METRIC, AltMetric.INITIAL_ALIGNMENT_CLUSTERS_AUC_METRIC,
+                    AltMetric.INITIAL_ALIGNMENT_CLUSTERS_AUC_METRIC_WITH_DIM_REDUCTION],
            image_size= 224, n_augmentations=10, sample_size=500, encoder_target_dim=768,
              random_state=42, ks= None,
              chkpt_path="./chkpt", chkpt_name="checkpoint",  verbose=True):
@@ -131,6 +132,11 @@ def probe(encoder_name, dataset_name, transformation, transformation_name,
     else:
         initial_alignment_clusters_auc_scores = {}
 
+    if AltMetric.INITIAL_ALIGNMENT_CLUSTERS_AUC_METRIC_WITH_DIM_REDUCTION in metrics:
+        initial_alignment_clusters_auc_with_dim_reduction_scores = initial_alignment_clusters_auc_with_dim_reduction(features, image_ids, image_labels, ks)
+    else:
+        initial_alignment_clusters_auc_with_dim_reduction_scores = {}
+
     if verbose: print("Clearing embeddings from memory ...")
     del features
     gc.collect()
@@ -161,6 +167,7 @@ def probe(encoder_name, dataset_name, transformation, transformation_name,
             "initial_alignment_nn": initial_alignment_nn_scores,
             "initial_alignment_clusters": initial_alignment_clusters_scores,
             "initial_alignment_clusters_auc": initial_alignment_clusters_auc_scores,
+            "initial_alignment_clusters_auc_with_dim_reduction": initial_alignment_clusters_auc_with_dim_reduction_scores
         }
     }
 

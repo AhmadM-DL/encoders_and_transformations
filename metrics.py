@@ -16,6 +16,7 @@ class AltMetric(Enum):
   INITIAL_ALIGNMENT_NN_METRIC = "initial_alignment_nn"
   INITIAL_ALIGNMENT_CLUSTERS_METRIC = "initial_alignment_clusters"
   INITIAL_ALIGNMENT_CLUSTERS_AUC_METRIC = "initial_alignment_clusters_auc"
+  INITIAL_ALIGNMENT_CLUSTERS_AUC_METRIC_WITH_DIM_REDUCTION = "initial_alignment_clusters_auc_with_dim_reduction"
 
 def _normalized_entropy(labels):
     labels = np.asarray(labels)
@@ -40,6 +41,26 @@ def _binary_entropy(p):
     if p == 0 or p == 1:
         return 0.0
     return -p * np.log(p) - (1 - p) * np.log(1 - p)
+
+def initial_alignment_clusters_auc_with_dim_reduction(embeddings, ids, labels, ks):
+    ids = np.asarray(ids)
+    labels = np.asarray(labels)
+    embeddings = np.asarray(embeddings)
+
+    uniq_embeddings = []
+    for uid in np.unique(ids):
+        idx = np.where(ids == uid)[0][0]
+        uniq_embeddings.append(embeddings[idx])
+    X = np.asarray(uniq_embeddings)
+    
+    # Dimensionality reduction using PCA
+    d = X.shape[1]
+    output_dim = 70 if d == 768 else 100 if d == 1024 else 200 if d == 2048 else d // 10
+    pca_matrix = faiss.PCAMatrix(d, output_dim)
+    pca_matrix.train(X)
+    X = pca_matrix.apply(X)
+
+    return initial_alignment_clusters_auc(X, ids, labels, ks)
 
 def initial_alignment_clusters_auc(embeddings, ids, labels, ks):
     ids = np.asarray(ids)
