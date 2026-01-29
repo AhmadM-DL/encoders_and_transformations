@@ -194,7 +194,7 @@ class ClassificationDataset(Dataset):
     def __getitem__(self, idx):
         item = self.data[idx]
         
-        if self.dataset_name in ["aircraft", "flowers102", "cub2011"]:
+        if self.dataset_name in ["aircraft", "flowers102", "cub2011", "dogs", "cars", "pets", "food101"]:
             image, label = item[0], item[1]
         
         elif self.dataset_name in ["retinamnist", "tissuemnist"]:
