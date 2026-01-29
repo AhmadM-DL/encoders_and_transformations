@@ -78,34 +78,59 @@
             "active": true
         },
         {
-            "id": "retinamnist",
+            "id": "dogs",
             "task": "classification",
             "active": true
+        },
+        {
+            "id": "cars",
+            "task": "classification",
+            "active": true
+        },
+        {
+            "id": "pets",
+            "task": "classification",
+            "active": true
+        },
+        {
+            "id": "food101",
+            "task": "classification",
+            "active": true
+        },
+        {
+            "id": "cifar10-fgvc",
+            "task": "classification",
+            "active": true
+        },
+        {
+            "id": "retinamnist",
+            "task": "classification",
+            "active": false
         },
         {
             "id": "chestmnist",
             "task": "multilabel_classification",
-            "active": true
+            "active": false
         },
         {
             "id": "tissuemnist",
             "task": "classification",
-            "active": true
+            "active": false
         },
         {
             "id": "eurosat",
             "task": "classification",
-            "active": true
+            "active": false
         },
         {
             "id": "dtd",
             "task": "classification",
-            "active": true
+            "active": false
         },
         {
             "id": "svhn",
             "task": "classification",
-            "active": true
+            "active": false
         }
     ],
     "encoders": [

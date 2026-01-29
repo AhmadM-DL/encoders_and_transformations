@@ -1,4 +1,4 @@
-from torchvision.datasets import ImageFolder, FGVCAircraft, Flowers102, SVHN
+from torchvision.datasets import ImageFolder, FGVCAircraft, Flowers102, SVHN, StandfordCars, OxfordIIITPet, Food101
 from torchvision.datasets.utils import download_and_extract_archive
 from torchvision.transforms import ToTensor
 from torch.utils.data import Subset
@@ -80,6 +80,24 @@ class ClassificationDataset(Dataset):
         elif self.dataset_name == "cub2011":
             dataset = CUB2011Dataset(root=path, split=self.split, download=True)
 
+        elif self.dataset_name == "dogs":
+            url = "http://vision.stanford.edu/aditya86/ImageNetDogs/images.tar"
+            download_using_axel(url, path, "images.tar", 10)
+            tar_ref = tarfile.open(os.path.join(path, "images.tar"), 'r')
+            tar_ref.extractall(path)
+            dataset = ImageFolder(os.path.join(path, "Images"))
+            dataset = self._get_split_train_test_val(dataset)
+            tar_ref.close()
+
+        elif self.dataset_name == "cars":
+            dataset = StandfordCars(root=path, split=self.split, download=True)
+
+        elif self.dataset_name == "pets":
+            dataset = OxfordIIITPet(root=path, split=self.split, download=True)
+        
+        elif self.dataset_name == "food101":
+            dataset = Food101(root=path, split=self.split, download=True)
+
         elif self.dataset_name == "retinamnist":
             dataclass = INFO[self.dataset_name]['python_class']
             if not os.path.exists(path):  os.mkdir(path)
@@ -135,7 +153,8 @@ class ClassificationDataset(Dataset):
             "cub2011": 200,
             "eurosat": 10,
             "dtd": 47,
-            "svhn": 10
+            "svhn": 10,
+            "dogs": 120,
         }
         if self.dataset_name in labels_map:
             return labels_map[self.dataset_name]
