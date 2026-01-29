@@ -108,8 +108,14 @@ class ClassificationDataset(Dataset):
                 dataset = OxfordIIITPet(root=path, split="test", download=True)
         
         elif self.dataset_name == "food101":
-            dataset = Food101(root=path, split=self.split, download=True)
-
+            if self.split in ["train", "val"]:
+                dataset = Food101(root=path, split="train", download=True)
+                dataset = self._get_split_train_val(dataset)
+            elif self.split == "test":
+                dataset = Food101(root=path, split="test", download=True)
+            else:
+                raise ValueError(f"Invalid split: {self.split}")
+            
         elif self.dataset_name == "retinamnist":
             dataclass = INFO[self.dataset_name]['python_class']
             if not os.path.exists(path):  os.mkdir(path)
