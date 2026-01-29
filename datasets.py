@@ -1,4 +1,4 @@
-from torchvision.datasets import ImageFolder, FGVCAircraft, Flowers102, SVHN, StandfordCars, OxfordIIITPet, Food101
+from torchvision.datasets import ImageFolder, FGVCAircraft, Flowers102, SVHN, StanfordCars, OxfordIIITPet, Food101
 from torchvision.datasets.utils import download_and_extract_archive
 from torchvision.transforms import ToTensor
 from torch.utils.data import Subset
