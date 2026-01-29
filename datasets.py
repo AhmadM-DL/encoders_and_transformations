@@ -90,7 +90,7 @@ class ClassificationDataset(Dataset):
             tar_ref.close()
 
         elif self.dataset_name == "cars":
-            dataset = StandfordCars(root=path, split=self.split, download=True)
+            dataset = StanfordCars(root=path, split=self.split, download=True)
 
         elif self.dataset_name == "pets":
             dataset = OxfordIIITPet(root=path, split=self.split, download=True)
