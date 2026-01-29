@@ -7,12 +7,10 @@ from PIL import Image
 import pandas as pd
 from medmnist import INFO
 from utils import download_using_axel
-import zipfile
-import tarfile
+import zipfile, tarfile
 import medmnist
-import torch
-import os
-import random
+import os, torch, random
+import subprocess
 
 
 class CUB2011Dataset(Dataset):
@@ -90,7 +88,17 @@ class ClassificationDataset(Dataset):
             tar_ref.close()
 
         elif self.dataset_name == "cars":
-            dataset = StanfordCars(root=path, split=self.split, download=True)
+            url = "https://github.com/AhmadM-DL/Stanford_Cars_dataset.git"
+            subprocess.run(["git", "clone", url, os.path.join(path, "Stanford_Cars_dataset")])
+            dataset_train = ImageFolder(os.path.join(path, "Stanford_Cars_dataset", "train"))
+            dataset_test = ImageFolder(os.path.join(path, "Stanford_Cars_dataset", "test"))
+            if self.split in ["train", "val"]:
+                dataset = dataset_train
+                dataset = self._get_split_train_val(dataset)
+            elif self.split == "test":
+                dataset = dataset_test
+            else:
+                raise ValueError(f"Invalid split: {self.split}")
 
         elif self.dataset_name == "pets":
             dataset = OxfordIIITPet(root=path, split=self.split, download=True)
