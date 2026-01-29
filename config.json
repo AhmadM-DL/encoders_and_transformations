@@ -98,11 +98,6 @@
             "active": true
         },
         {
-            "id": "cifar10-fgvc",
-            "task": "classification",
-            "active": true
-        },
-        {
             "id": "retinamnist",
             "task": "classification",
             "active": false
