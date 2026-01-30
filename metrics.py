@@ -4,6 +4,7 @@ from enum import Enum
 import pdb, os
 import numpy as np
 from scipy.stats import entropy
+import gc
 
 debug_pdb_traces = bool(os.environ.get("DEBUG_PDB_TRACES", "False"))
 
@@ -60,6 +61,10 @@ def initial_alignment_clusters_auc_with_dim_reduction(embeddings, ids, labels, k
     pca_matrix.train(X)
     X = pca_matrix.apply(X)
 
+    del embeddings
+    del uniq_embeddings
+    gc.collect()
+
     return initial_alignment_clusters_auc(X, ids, labels, ks)
 
 def initial_alignment_clusters_auc(embeddings, ids, labels, ks):
@@ -76,6 +81,10 @@ def initial_alignment_clusters_auc(embeddings, ids, labels, ks):
     X = np.asarray(uniq_embeddings)
     Y = np.asarray(uniq_labels)
     N = len(Y)
+
+    del embeddings
+    del uniq_embeddings
+    gc.collect()
 
     multi_label = len(Y.shape) > 1
     num_labels = Y.shape[1] if multi_label else 1
@@ -126,6 +135,10 @@ def initial_alignment_clusters_auc(embeddings, ids, labels, ks):
 
         alignment = 1.0 - H_Y_given_C / H_Y
         alignments[k] = max(0.0, min(1.0, alignment))
+
+    del X
+    del Y
+    gc.collect()
 
     return alignments
 
