@@ -70,7 +70,7 @@ def probe(encoder_name, dataset_name, transformation, transformation_name,
     # Get the features of each image and augmentations
     if verbose: print("Getting images embeddings ...")
     features = []
-    batch_size = 128  
+    batch_size = 64  
     for i in range(0, len(all_images), batch_size):
         batch_images = all_images[i:i+batch_size]
         batch_processed = processor(batch_images, return_tensors='pt')['pixel_values']
