@@ -70,7 +70,7 @@
         {
             "id": "flowers102",
             "task": "classification",
-            "active": true
+            "active": false
         },
         {
             "id": "cub2011",
@@ -100,7 +100,7 @@
         {
             "id": "retinamnist",
             "task": "classification",
-            "active": false
+            "active": true
         },
         {
             "id": "chestmnist",
@@ -120,7 +120,7 @@
         {
             "id": "dtd",
             "task": "classification",
-            "active": false
+            "active": true
         },
         {
             "id": "svhn",
@@ -175,7 +175,7 @@
             "input_size": 224,
             "params": "87.8M",
             "active": true,
-            "output_size": 1024 
+            "output_size": 1024
         },
         {
             "id": "custom/moco-v3-vit-b",
@@ -183,7 +183,7 @@
             "input_size": 224,
             "params": "86.6M",
             "active": true,
-            "output_size": 768 
+            "output_size": 768
         },
         {
             "id": "custom/byol-resnet50",
